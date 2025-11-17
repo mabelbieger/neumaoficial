@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { Brain } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import logo from '../assets/logo.png'; // Import da logo
 
 interface SignUpProps {
   onNavigateToLogin: () => void;
@@ -35,7 +35,7 @@ export default function SignUp({ onNavigateToLogin }: SignUpProps) {
         <div className="flex-1 p-12 flex flex-col justify-center">
           <div className="flex items-center gap-2 mb-8">
             <h1 className="text-3xl font-bold text-gray-900">Cadastro</h1>
-            <Brain className="w-8 h-8 text-[#6f42c1]" />
+            
           </div>
 
           {error && (
@@ -128,12 +128,19 @@ export default function SignUp({ onNavigateToLogin }: SignUpProps) {
 
         <div className="flex-1 bg-gradient-to-br from-[#d4c5f9] to-[#b89fff] p-12 flex items-center justify-center relative overflow-hidden">
           <div className="absolute inset-0 opacity-10">
-            <Brain className="w-full h-full" />
+            <img 
+              src={logo} 
+              alt="Logo" 
+              className="w-full h-full object-contain opacity-20"
+            />
           </div>
           <div className="relative text-center">
-            <h2 className="text-6xl font-bold text-[#6f42c1] mb-4">neuma</h2>
-            <div className="w-32 h-32 mx-auto opacity-30">
-              <Brain className="w-full h-full text-[#6f42c1]" />
+            <div className="w-32 h-32 mx-auto">
+              <img 
+                src={logo} 
+                alt="Neuma Logo" 
+                className="w-full h-full object-contain"
+              />
             </div>
           </div>
         </div>
