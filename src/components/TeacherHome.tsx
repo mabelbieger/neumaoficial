@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { LogOut, Plus, Users, FileText, X, AlertCircle, CheckCircle, RefreshCw, Download, Trash2, Search, Filter, ChevronDown, ChevronUp, Eye, Info } from 'lucide-react';
+import { LogOut, Plus, Users, FileText, X, AlertCircle, CheckCircle, RefreshCw, Download, Trash2, Search, Info, ChevronDown, ChevronUp } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import logo from '../assets/logo.png';
 
@@ -29,9 +29,11 @@ export default function TeacherHome() {
   const [classrooms, setClassrooms] = useState<Classroom[]>([]);
   const [selectedClassroom, setSelectedClassroom] = useState<string | null>(null);
   const [activities, setActivities] = useState<Activity[]>([]);
+  const [filteredActivities, setFilteredActivities] = useState<Activity[]>([]);
   const [showCreateClassroom, setShowCreateClassroom] = useState(false);
   const [showCreateActivity, setShowCreateActivity] = useState(false);
   const [showSensoryInfo, setShowSensoryInfo] = useState(false);
+  const [expandedActivity, setExpandedActivity] = useState<string | null>(null);
   const [newClassroomName, setNewClassroomName] = useState('');
   const [newClassroomCode, setNewClassroomCode] = useState('');
   const [isGeneratingCode, setIsGeneratingCode] = useState(false);
@@ -46,12 +48,9 @@ export default function TeacherHome() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
-  
-  // Novos estados para busca e filtros
   const [classroomSearch, setClassroomSearch] = useState('');
   const [activitySearch, setActivitySearch] = useState('');
-  const [selectedStyleFilter, setSelectedStyleFilter] = useState<string>('all');
-  const [expandedActivity, setExpandedActivity] = useState<string | null>(null);
+  const [selectedStyle, setSelectedStyle] = useState<string>('all');
 
   // Carrega dados do localStorage quando o componente monta
   useEffect(() => {
@@ -64,9 +63,39 @@ export default function TeacherHome() {
   useEffect(() => {
     if (selectedClassroom) {
       loadActivitiesFromStorage(selectedClassroom);
-      setExpandedActivity(null); // Fecha atividade expandida ao trocar de turma
     }
   }, [selectedClassroom]);
+
+  // Filtra atividades quando search ou filter mudam
+  useEffect(() => {
+    if (activities.length > 0) {
+      let filtered = activities;
+      
+      // Filtro por busca
+      if (activitySearch.trim()) {
+        const searchLower = activitySearch.toLowerCase();
+        filtered = filtered.filter(activity => 
+          activity.title.toLowerCase().includes(searchLower) ||
+          activity.description.toLowerCase().includes(searchLower)
+        );
+      }
+      
+      // Filtro por estilo de aprendizagem
+      if (selectedStyle !== 'all') {
+        filtered = filtered.filter(activity => activity.learning_style === selectedStyle);
+      }
+      
+      setFilteredActivities(filtered);
+    } else {
+      setFilteredActivities([]);
+    }
+  }, [activities, activitySearch, selectedStyle]);
+
+  // Filtra turmas
+  const filteredClassrooms = classrooms.filter(classroom =>
+    classroom.name.toLowerCase().includes(classroomSearch.toLowerCase()) ||
+    classroom.code.toLowerCase().includes(classroomSearch.toLowerCase())
+  );
 
   // Carrega turmas do localStorage
   const loadClassroomsFromStorage = () => {
@@ -91,13 +120,17 @@ export default function TeacherHome() {
     try {
       const saved = localStorage.getItem(`activities_${classroomId}`);
       if (saved) {
-        setActivities(JSON.parse(saved));
+        const parsed = JSON.parse(saved);
+        setActivities(parsed);
+        setFilteredActivities(parsed);
       } else {
         setActivities([]);
+        setFilteredActivities([]);
       }
     } catch (err) {
       console.error('Erro ao carregar atividades:', err);
       setActivities([]);
+      setFilteredActivities([]);
     }
   };
 
@@ -125,20 +158,6 @@ export default function TeacherHome() {
   const generateId = (): string => {
     return Date.now().toString() + Math.random().toString(36).substr(2, 9);
   };
-
-  // Filtra turmas pela busca
-  const filteredClassrooms = classrooms.filter(classroom =>
-    classroom.name.toLowerCase().includes(classroomSearch.toLowerCase()) ||
-    classroom.code.toLowerCase().includes(classroomSearch.toLowerCase())
-  );
-
-  // Filtra atividades pela busca e filtro de estilo
-  const filteredActivities = activities.filter(activity => {
-    const matchesSearch = activity.title.toLowerCase().includes(activitySearch.toLowerCase()) ||
-                         activity.description.toLowerCase().includes(activitySearch.toLowerCase());
-    const matchesFilter = selectedStyleFilter === 'all' || activity.learning_style === selectedStyleFilter;
-    return matchesSearch && matchesFilter;
-  });
 
   const handleGenerateCode = () => {
     setIsGeneratingCode(true);
@@ -230,19 +249,13 @@ export default function TeacherHome() {
         throw new Error('Nome da turma é obrigatório');
       }
 
+      // Gera código automaticamente se não existir
       if (!newClassroomCode.trim()) {
-        throw new Error('Código da turma é obrigatório');
+        const generatedCode = generateCodeClient();
+        setNewClassroomCode(generatedCode);
       }
 
       const formattedCode = newClassroomCode.trim().toUpperCase().replace(/\s/g, '');
-
-      if (formattedCode.length !== 6) {
-        throw new Error('O código deve ter exatamente 6 caracteres');
-      }
-
-      if (!/^[A-Z0-9]{6}$/.test(formattedCode)) {
-        throw new Error('O código deve conter apenas letras maiúsculas e números');
-      }
 
       // Verifica se o código já existe localmente
       const codeExists = classrooms.some(classroom => 
@@ -250,7 +263,10 @@ export default function TeacherHome() {
       );
 
       if (codeExists) {
-        throw new Error('Este código já está em uso. Por favor, use outro código.');
+        // Gera um novo código se o atual já existir
+        const newCode = generateCodeClient();
+        setNewClassroomCode(newCode);
+        throw new Error('Código já em uso. Um novo código foi gerado automaticamente.');
       }
 
       // Cria nova turma
@@ -397,58 +413,6 @@ export default function TeacherHome() {
 
   const selectedClassroomData = classrooms.find(c => c.id === selectedClassroom);
 
-  // Informações sobre os sistemas sensoriais
-  const sensorySystems = [
-    {
-      type: 'visual',
-      title: 'Visual',
-      color: 'bg-blue-50 border-blue-200',
-      icon: '👁️',
-      characteristics: [
-        'Preferem imagens, gráficos, diagramas e cores',
-        'Têm facilidade em lembrar o que viram, como esquemas ou mapas mentais',
-        'Gostam de materiais com organização visual clara, como quadros, slides e vídeos',
-        'Aprendem melhor através de demonstrações visuais e representações gráficas'
-      ]
-    },
-    {
-      type: 'auditory',
-      title: 'Auditivo',
-      color: 'bg-green-50 border-green-200',
-      icon: '👂',
-      characteristics: [
-        'Preferem ouvir explicações e conversas em vez de ler',
-        'Lembram de detalhes de sons ou palavras ouvidas com clareza',
-        'Tendem a gostar de músicas ou gravações relacionadas ao conteúdo',
-        'Aprendem melhor através de discussões, podcasts e explicações verbais'
-      ]
-    },
-    {
-      type: 'reading',
-      title: 'Leitura/Escrita',
-      color: 'bg-yellow-50 border-yellow-200',
-      icon: '📚',
-      characteristics: [
-        'Preferem aprender por meio de textos e materiais escritos',
-        'Têm facilidade em ler, escrever e reescrever informações para memorizar conteúdos',
-        'Tendem a organizar o aprendizado com resumos, esquemas, artigos e manuais',
-        'Aprendem melhor através de leituras, anotações e exercícios escritos'
-      ]
-    },
-    {
-      type: 'kinesthetic',
-      title: 'Cinestésico',
-      color: 'bg-red-50 border-red-200',
-      icon: '🔄',
-      characteristics: [
-        'Aprendem melhor por meio da prática e experiências',
-        'Tendem a lembrar do que fizeram ou sentiram fisicamente durante o aprendizado',
-        'Gostam de atividades práticas, simulações, experimentos e uso do corpo no processo de aprendizagem',
-        'Aprendem melhor através de atividades mão na massa, jogos e experiências concretas'
-      ]
-    }
-  ];
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#f0ebff] to-white">
       <nav className="bg-[#150B53] shadow-sm border-b border-[#150B53]">
@@ -457,11 +421,12 @@ export default function TeacherHome() {
             <img 
               src={logo} 
               alt="Neuma Logo" 
-              className="w-12 h-12 object-contain"
+              className="w-10 h-10 object-contain"
             />
+            <span className="text-white text-lg">Neuma</span>
           </div>
           <div className="flex items-center gap-4">
-            <span className="text-white">Prof. {user?.full_name}</span>
+            <span className="text-white text-sm md:text-base">Prof. {user?.full_name}</span>
             <button
               onClick={signOut}
               className="p-2 text-white hover:text-[#6f42c1] transition-colors"
@@ -507,84 +472,80 @@ export default function TeacherHome() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 py-8">
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-8">
-          <h1 className="text-2xl xs:text-3xl sm:text-4xl font-bold text-gray-900">Minhas Turmas</h1>
-          <div className="flex flex-col xs:flex-row gap-3">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-8">
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-900">Minhas Turmas</h1>
+          <div className="flex flex-col sm:flex-row gap-3">
             <button
               onClick={() => setShowSensoryInfo(true)}
-              className="flex items-center gap-2 px-4 py-3 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-xl transition-colors"
+              className="flex items-center gap-2 px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-xl transition-colors justify-center"
             >
-              <Info className="w-4 h-4" />
-              Sobre os Estilos
+              <Info className="w-5 h-5" />
+              Sistemas Sensoriais
             </button>
             <button
               onClick={() => {
                 setShowCreateClassroom(true);
                 setNewClassroomCode(generateCodeClient());
               }}
-              className="flex items-center gap-2 px-4 xs:px-6 py-3 bg-[#150B53] hover:bg-[#5a35a0] text-white font-semibold rounded-xl transition-colors"
+              className="flex items-center gap-2 px-6 py-3 bg-[#150B53] hover:bg-[#5a35a0] text-white font-semibold rounded-xl transition-colors justify-center"
             >
-              <Plus className="w-4 xs:w-5 h-4 xs:h-5" />
-              <span className="text-sm xs:text-base">Nova Turma</span>
+              <Plus className="w-5 h-5" />
+              Nova Turma
             </button>
           </div>
         </div>
 
         {classrooms.length === 0 ? (
-          <div className="bg-white rounded-2xl xs:rounded-3xl shadow-xl p-6 xs:p-8 sm:p-12 text-center">
-            <Users className="w-12 xs:w-16 h-12 xs:h-16 mx-auto mb-4 xs:mb-6 text-gray-400" />
-            <h2 className="text-xl xs:text-2xl font-bold text-gray-900 mb-3 xs:mb-4">Nenhuma turma ainda</h2>
-            <p className="text-gray-600 mb-6 xs:mb-8 text-sm xs:text-base">Crie sua primeira turma para começar!</p>
+          <div className="bg-white rounded-3xl shadow-xl p-8 md:p-12 text-center">
+            <Users className="w-16 h-16 mx-auto mb-6 text-gray-400" />
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">Nenhuma turma ainda</h2>
+            <p className="text-gray-600 mb-8">Crie sua primeira turma para começar!</p>
             <button
               onClick={() => {
                 setShowCreateClassroom(true);
                 setNewClassroomCode(generateCodeClient());
               }}
-              className="px-6 xs:px-8 py-3 bg-[#150B53] hover:bg-[#5a35a0] text-white font-semibold rounded-xl transition-colors text-sm xs:text-base"
+              className="px-8 py-3 bg-[#150B53] hover:bg-[#5a35a0] text-white font-semibold rounded-xl transition-colors"
             >
               Criar Primeira Turma
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 xs:gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
             {/* Sidebar de Turmas */}
             <div className="lg:col-span-1">
-              <div className="bg-white rounded-2xl shadow-lg p-4 xs:p-6">
-                {/* Barra de pesquisa de turmas */}
+              <div className="bg-white rounded-2xl shadow-lg p-4 md:p-6">
+                {/* Barra de Pesquisa de Turmas */}
                 <div className="relative mb-4">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                  <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                   <input
                     type="text"
-                    placeholder="Buscar turmas..."
+                    placeholder="Pesquisar turmas..."
                     value={classroomSearch}
                     onChange={(e) => setClassroomSearch(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6f42c1] focus:border-transparent"
+                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6f42c1] focus:border-transparent"
                   />
                 </div>
                 
-                <div className="space-y-2 xs:space-y-3 max-h-[400px] overflow-y-auto">
-                  {filteredClassrooms.length === 0 ? (
-                    <p className="text-gray-500 text-center py-4 text-sm">Nenhuma turma encontrada</p>
-                  ) : (
-                    filteredClassrooms.map((classroom) => (
-                      <button
-                        key={classroom.id}
-                        onClick={() => setSelectedClassroom(classroom.id)}
-                        className={`w-full text-left p-3 xs:p-4 rounded-xl transition-all ${
-                          selectedClassroom === classroom.id
-                            ? 'bg-[#6f42c1] text-white'
-                            : 'bg-gray-50 hover:bg-gray-100 text-gray-900'
-                        }`}
-                      >
-                        <div className="font-semibold text-sm xs:text-base mb-1 truncate">{classroom.name}</div>
-                        <div className={`text-xs font-mono ${
-                          selectedClassroom === classroom.id ? 'text-white/80' : 'text-gray-500'
-                        }`}>
-                          Código: {classroom.code}
-                        </div>
-                      </button>
-                    ))
-                  )}
+                <div className="space-y-3 max-h-96 overflow-y-auto">
+                  {filteredClassrooms.map((classroom) => (
+                    <button
+                      key={classroom.id}
+                      onClick={() => setSelectedClassroom(classroom.id)}
+                      className={`w-full text-left p-4 rounded-xl transition-all ${
+                        selectedClassroom === classroom.id
+                          ? 'bg-[#6f42c1] text-white'
+                          : 'bg-gray-50 hover:bg-gray-100 text-gray-900'
+                      }`}
+                    >
+                      <div className="font-semibold mb-1 truncate">{classroom.name}</div>
+                      <div className={`text-sm font-mono ${
+                        selectedClassroom === classroom.id ? 'text-white/80' : 'text-gray-500'
+                      }`}>
+                        Código: {classroom.code}
+                      </div>
+                    </button>
+                  ))}
                 </div>
               </div>
             </div>
@@ -592,17 +553,17 @@ export default function TeacherHome() {
             {/* Conteúdo Principal */}
             <div className="lg:col-span-2">
               {selectedClassroom ? (
-                <div className="bg-white rounded-2xl xs:rounded-3xl shadow-xl p-4 xs:p-6 sm:p-8">
-                  <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6 xs:mb-8">
-                    <div>
-                      <h2 className="text-xl xs:text-2xl sm:text-3xl font-bold text-gray-900 mb-1 xs:mb-2">
+                <div className="bg-white rounded-3xl shadow-xl p-6 md:p-8">
+                  <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-8">
+                    <div className="flex-1">
+                      <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
                         {selectedClassroomData?.name}
                       </h2>
-                      <p className="text-gray-600 text-sm xs:text-base">
-                        Código: <span className="font-mono font-bold">{selectedClassroomData?.code}</span>
+                      <p className="text-gray-600">
+                        Código da turma: <span className="font-mono font-bold">{selectedClassroomData?.code}</span>
                       </p>
                     </div>
-                    <div className="flex flex-col xs:flex-row gap-2 xs:gap-3">
+                    <div className="flex flex-col sm:flex-row gap-3">
                       <button
                         onClick={() => {
                           const classroom = classrooms.find(c => c.id === selectedClassroom);
@@ -612,152 +573,153 @@ export default function TeacherHome() {
                             setTimeout(() => setSuccessMessage(null), 3000);
                           }
                         }}
-                        className="flex items-center justify-center gap-2 px-3 xs:px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-xl transition-colors text-sm"
+                        className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-xl transition-colors justify-center"
                       >
-                        <Users className="w-3 xs:w-4 h-3 xs:h-4" />
+                        <Users className="w-4 h-4" />
                         Copiar Código
                       </button>
                       <button
                         onClick={() => setShowCreateActivity(true)}
-                        className="flex items-center justify-center gap-2 px-4 xs:px-6 py-2 xs:py-3 bg-[#6f42c1] hover:bg-[#5a35a0] text-white font-semibold rounded-xl transition-colors text-sm xs:text-base"
+                        className="flex items-center gap-2 px-6 py-3 bg-[#6f42c1] hover:bg-[#5a35a0] text-white font-semibold rounded-xl transition-colors justify-center"
                       >
-                        <Plus className="w-3 xs:w-4 h-3 xs:h-4" />
+                        <Plus className="w-5 h-5" />
                         Nova Atividade
                       </button>
                     </div>
                   </div>
 
-                  {/* Estatísticas */}
-                  <div className="grid grid-cols-2 xs:grid-cols-4 gap-3 xs:gap-4 mb-6 xs:mb-8">
+                  {/* Cards de Estatísticas */}
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-8">
                     {['visual', 'auditory', 'reading', 'kinesthetic'].map((style) => (
-                      <div key={style} className="bg-[#f0ebff] rounded-xl p-3 xs:p-4 text-center">
-                        <div className="text-lg xs:text-xl sm:text-2xl font-bold text-[#6f42c1] mb-1">
+                      <div key={style} className="bg-[#f0ebff] rounded-xl p-3 md:p-4 text-center">
+                        <div className="text-xl md:text-2xl font-bold text-[#6f42c1] mb-1">
                           {activities.filter(a => a.learning_style === style).length}
                         </div>
-                        <div className="text-xs xs:text-sm text-gray-600">{getStyleLabel(style)}</div>
+                        <div className="text-xs md:text-sm text-gray-600">{getStyleLabel(style)}</div>
                       </div>
                     ))}
                   </div>
 
-                  {/* Filtros e Busca de Atividades */}
-                  <div className="flex flex-col sm:flex-row gap-3 xs:gap-4 mb-6">
+                  {/* Filtros e Pesquisa de Atividades */}
+                  <div className="flex flex-col sm:flex-row gap-4 mb-6">
                     <div className="flex-1 relative">
-                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                      <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                       <input
                         type="text"
-                        placeholder="Buscar atividades..."
+                        placeholder="Pesquisar atividades..."
                         value={activitySearch}
                         onChange={(e) => setActivitySearch(e.target.value)}
-                        className="w-full pl-10 pr-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6f42c1] focus:border-transparent"
+                        className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6f42c1] focus:border-transparent"
                       />
                     </div>
-                    <div className="flex gap-2">
-                      <Filter className="w-5 h-5 text-gray-500 mt-2" />
-                      <select
-                        value={selectedStyleFilter}
-                        onChange={(e) => setSelectedStyleFilter(e.target.value)}
-                        className="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6f42c1] focus:border-transparent"
-                      >
-                        <option value="all">Todos os estilos</option>
-                        <option value="visual">Visual</option>
-                        <option value="auditory">Auditivo</option>
-                        <option value="reading">Leitura/Escrita</option>
-                        <option value="kinesthetic">Cinestésico</option>
-                      </select>
-                    </div>
+                    <select
+                      value={selectedStyle}
+                      onChange={(e) => setSelectedStyle(e.target.value)}
+                      className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6f42c1] focus:border-transparent bg-white"
+                    >
+                      <option value="all">Todos os estilos</option>
+                      <option value="visual">Visual</option>
+                      <option value="auditory">Auditivo</option>
+                      <option value="reading">Leitura/Escrita</option>
+                      <option value="kinesthetic">Cinestésico</option>
+                    </select>
                   </div>
 
-                  {/* Lista de Atividades */}
+                  {/* Lista de Atividades em Grid */}
                   <div className="space-y-4">
-                    <h3 className="text-lg xs:text-xl font-bold text-gray-900">Atividades</h3>
+                    <h3 className="text-xl font-bold text-gray-900">
+                      Atividades {filteredActivities.length > 0 && `(${filteredActivities.length})`}
+                    </h3>
                     {filteredActivities.length === 0 ? (
-                      <div className="text-center py-8 xs:py-12 text-gray-500">
-                        <FileText className="w-8 xs:w-12 h-8 xs:h-12 mx-auto mb-3 text-gray-400" />
-                        <p className="text-sm xs:text-base">
-                          {activities.length === 0 ? 'Nenhuma atividade criada ainda' : 'Nenhuma atividade encontrada'}
-                        </p>
+                      <div className="text-center py-12 text-gray-500">
+                        <FileText className="w-12 h-12 mx-auto mb-3 text-gray-400" />
+                        <p>{activities.length === 0 ? 'Nenhuma atividade criada ainda' : 'Nenhuma atividade encontrada'}</p>
                       </div>
                     ) : (
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {filteredActivities.map((activity) => (
-                          <div 
-                            key={activity.id} 
-                            className="border border-gray-200 rounded-xl p-4 hover:shadow-md transition-all cursor-pointer"
-                            onClick={() => toggleActivityExpansion(activity.id)}
-                          >
-                            {/* Cabeçalho da Atividade */}
-                            <div className="flex items-start justify-between mb-2">
-                              <div className="flex-1 min-w-0">
-                                <div className="flex items-center gap-2 mb-2">
-                                  <h4 className="font-semibold text-gray-900 text-base truncate">{activity.title}</h4>
-                                  <span className={`text-xs px-2 py-1 rounded-full border ${getStyleColor(activity.learning_style)} flex-shrink-0`}>
+                          <div key={activity.id} className="border border-gray-200 rounded-xl p-4 md:p-6 hover:shadow-md transition-shadow bg-white">
+                            <div className="flex flex-col h-full">
+                              {/* Cabeçalho do Card */}
+                              <div className="flex items-start justify-between mb-3">
+                                <div className="flex-1 min-w-0">
+                                  <button
+                                    onClick={() => toggleActivityExpansion(activity.id)}
+                                    className="text-left w-full"
+                                  >
+                                    <h4 className="font-semibold text-gray-900 text-lg mb-2 hover:text-purple-700 transition-colors line-clamp-2">
+                                      {activity.title}
+                                    </h4>
+                                  </button>
+                                  <span className={`text-xs px-3 py-1 rounded-full border ${getStyleColor(activity.learning_style)} whitespace-nowrap`}>
                                     {getStyleLabel(activity.learning_style)}
                                   </span>
                                 </div>
-                                {activity.description && (
-                                  <p className="text-gray-600 text-sm line-clamp-2">{activity.description}</p>
-                                )}
                               </div>
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  toggleActivityExpansion(activity.id);
-                                }}
-                                className="p-1 text-gray-400 hover:text-gray-600 ml-2 flex-shrink-0"
-                              >
-                                {expandedActivity === activity.id ? (
-                                  <ChevronUp className="w-4 h-4" />
-                                ) : (
-                                  <ChevronDown className="w-4 h-4" />
-                                )}
-                              </button>
-                            </div>
 
-                            {/* Conteúdo Expandido */}
-                            {expandedActivity === activity.id && (
-                              <div className="mt-4 pt-4 border-t border-gray-100">
-                                {/* Descrição Completa - APENAS AQUI */}
-                                {activity.description && (
-                                  <div className="mb-4">
-                                    <p className="text-gray-700 text-sm">{activity.description}</p>
-                                  </div>
-                                )}
-                                
-                                {/* Arquivo Anexado */}
-                                {activity.file_url && (
-                                  <div className="flex items-center gap-2 p-3 bg-blue-50 rounded-lg border border-blue-200 mb-3">
-                                    <FileText className="w-4 h-4 text-blue-600 flex-shrink-0" />
-                                    <div className="flex-1 min-w-0">
-                                      <p className="text-sm font-medium text-blue-800 truncate">
-                                        {activity.file_name}
-                                      </p>
-                                      <p className="text-xs text-blue-600">
-                                        {getFileTypeLabel(activity.file_type)}
-                                      </p>
+                              {/* Descrição (sempre visível - apenas uma vez) */}
+                              {activity.description && (
+                                <div className="mb-3 flex-1">
+                                  <p className="text-gray-600 text-sm line-clamp-3">
+                                    {activity.description}
+                                  </p>
+                                </div>
+                              )}
+
+                              {/* Conteúdo expandido */}
+                              {expandedActivity === activity.id && (
+                                <div className="mt-3 space-y-3 animate-fadeIn border-t pt-3">
+                                  {/* Descrição completa (apenas se expandido) */}
+                                  {activity.description && activity.description.length > 150 && (
+                                    <div>
+                                      <h5 className="font-medium text-gray-900 mb-2 text-sm">Descrição completa:</h5>
+                                      <p className="text-gray-700 text-sm whitespace-pre-wrap">{activity.description}</p>
                                     </div>
-                                    <button
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        downloadFile(activity);
-                                      }}
-                                      className="flex items-center gap-1 px-2 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded transition-colors"
-                                    >
-                                      <Download className="w-3 h-3" />
-                                      Baixar
-                                    </button>
-                                  </div>
-                                )}
-                                
-                                {/* Ações */}
-                                <div className="flex justify-between items-center">
-                                  <div className="text-xs text-gray-500">
-                                    Criada em: {new Date(activity.created_at).toLocaleDateString('pt-BR')}
-                                  </div>
+                                  )}
+                                  
+                                  {/* Arquivo anexado */}
+                                  {activity.file_url && (
+                                    <div className="flex items-center gap-2 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                                      <FileText className="w-4 h-4 text-blue-600 flex-shrink-0" />
+                                      <div className="flex-1 min-w-0">
+                                        <p className="text-sm font-medium text-blue-800 truncate">
+                                          {activity.file_name}
+                                        </p>
+                                        <p className="text-xs text-blue-600">
+                                          {getFileTypeLabel(activity.file_type)}
+                                        </p>
+                                      </div>
+                                      <button
+                                        onClick={() => downloadFile(activity)}
+                                        className="flex items-center gap-1 px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded transition-colors"
+                                      >
+                                        <Download className="w-3 h-3" />
+                                        Baixar
+                                      </button>
+                                    </div>
+                                  )}
+                                </div>
+                              )}
+
+                              {/* Rodapé do Card */}
+                              <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-100">
+                                <div className="text-xs text-gray-500">
+                                  {new Date(activity.created_at).toLocaleDateString('pt-BR')}
+                                </div>
+                                <div className="flex items-center gap-2">
                                   <button
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      deleteActivity(activity.id);
-                                    }}
+                                    onClick={() => toggleActivityExpansion(activity.id)}
+                                    className="p-1 text-gray-500 hover:text-purple-600 hover:bg-purple-50 rounded transition-colors"
+                                    title={expandedActivity === activity.id ? 'Recolher' : 'Expandir'}
+                                  >
+                                    {expandedActivity === activity.id ? (
+                                      <ChevronUp className="w-4 h-4" />
+                                    ) : (
+                                      <ChevronDown className="w-4 h-4" />
+                                    )}
+                                  </button>
+                                  <button
+                                    onClick={() => deleteActivity(activity.id)}
                                     className="p-1 text-red-500 hover:text-red-700 hover:bg-red-50 rounded transition-colors"
                                     title="Excluir atividade"
                                   >
@@ -765,7 +727,7 @@ export default function TeacherHome() {
                                   </button>
                                 </div>
                               </div>
-                            )}
+                            </div>
                           </div>
                         ))}
                       </div>
@@ -773,10 +735,10 @@ export default function TeacherHome() {
                   </div>
                 </div>
               ) : (
-                <div className="bg-white rounded-2xl xs:rounded-3xl shadow-xl p-6 xs:p-8 sm:p-12 text-center">
-                  <Users className="w-12 xs:w-16 h-12 xs:h-16 mx-auto mb-4 xs:mb-6 text-gray-400" />
-                  <h2 className="text-xl xs:text-2xl font-bold text-gray-900 mb-2 xs:mb-3">Selecione uma turma</h2>
-                  <p className="text-gray-600 text-sm xs:text-base">Escolha uma turma para ver e gerenciar suas atividades</p>
+                <div className="bg-white rounded-3xl shadow-xl p-8 md:p-12 text-center">
+                  <Users className="w-16 h-16 mx-auto mb-6 text-gray-400" />
+                  <h2 className="text-2xl font-bold text-gray-900 mb-2">Selecione uma turma</h2>
+                  <p className="text-gray-600">Escolha uma turma para ver e gerenciar suas atividades</p>
                 </div>
               )}
             </div>
@@ -784,69 +746,12 @@ export default function TeacherHome() {
         )}
       </div>
 
-      {/* Modal Informações sobre Sistemas Sensoriais */}
-      {showSensoryInfo && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-2xl xs:rounded-3xl shadow-2xl p-6 xs:p-8 max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl xs:text-2xl font-bold text-gray-900">Sistemas Sensoriais de Aprendizagem</h2>
-              <button
-                onClick={() => setShowSensoryInfo(false)}
-                className="p-2 text-gray-400 hover:text-gray-600"
-              >
-                <X className="w-5 xs:w-6 h-5 xs:h-6" />
-              </button>
-            </div>
-
-            <div className="mb-6">
-              <p className="text-gray-700 text-sm xs:text-base">
-                O VARK reconhece quatro tipos de sistemas sensoriais: <strong>visual, auditivo, cinestésico e leitura/escrita</strong>, 
-                que influenciam como cada pessoa aprende e percebe o mundo ao seu redor.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 xs:gap-6">
-              {sensorySystems.map((system) => (
-                <div key={system.type} className={`border rounded-xl p-4 xs:p-6 ${system.color}`}>
-                  <div className="flex items-center gap-3 mb-4">
-                    <span className="text-2xl">{system.icon}</span>
-                    <h3 className="text-lg xs:text-xl font-bold text-gray-900">{system.title}</h3>
-                  </div>
-                  <ul className="space-y-2">
-                    {system.characteristics.map((char, index) => (
-                      <li key={index} className="flex items-start gap-2 text-sm xs:text-base text-gray-700">
-                        <span className="text-green-500 mt-1 flex-shrink-0">•</span>
-                        <span>{char}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
-            </div>
-
-            <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-              <p className="text-blue-800 text-sm xs:text-base">
-                <strong>💡 Dica Pedagógica:</strong> Ofereça atividades diversificadas que atendam aos diferentes estilos de aprendizagem 
-                para engajar todos os estudantes da sua turma!
-              </p>
-            </div>
-
-            <button
-              onClick={() => setShowSensoryInfo(false)}
-              className="w-full mt-6 py-3 bg-[#6f42c1] hover:bg-[#5a35a0] text-white font-medium rounded-lg transition-colors"
-            >
-              Entendi
-            </button>
-          </div>
-        </div>
-      )}
-
       {/* Modal Criar Turma */}
       {showCreateClassroom && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-2xl xs:rounded-3xl shadow-2xl p-6 xs:p-8 max-w-md w-full">
+          <div className="bg-white rounded-3xl shadow-2xl p-6 md:p-8 max-w-md w-full max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl xs:text-2xl font-bold text-gray-900">Nova Turma</h2>
+              <h2 className="text-2xl font-bold text-gray-900">Nova Turma</h2>
               <button
                 onClick={() => {
                   setShowCreateClassroom(false);
@@ -857,7 +762,7 @@ export default function TeacherHome() {
                 className="p-2 text-gray-400 hover:text-gray-600"
                 disabled={loading}
               >
-                <X className="w-5 xs:w-6 h-5 xs:h-6" />
+                <X className="w-6 h-6" />
               </button>
             </div>
 
@@ -871,7 +776,7 @@ export default function TeacherHome() {
                   value={newClassroomName}
                   onChange={(e) => setNewClassroomName(e.target.value)}
                   placeholder="Ex: Matemática 3º Ano A"
-                  className="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6f42c1] focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6f42c1] focus:border-transparent"
                   required
                   disabled={loading}
                   minLength={3}
@@ -887,15 +792,8 @@ export default function TeacherHome() {
                   <input
                     type="text"
                     value={newClassroomCode}
-                    onChange={(e) => setNewClassroomCode(e.target.value.toUpperCase())}
-                    placeholder="Digite ou gere um código"
-                    className="flex-1 px-4 py-3 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6f42c1] focus:border-transparent font-mono uppercase"
-                    required
-                    disabled={loading}
-                    minLength={6}
-                    maxLength={6}
-                    pattern="[A-Z0-9]{6}"
-                    title="6 caracteres (letras maiúsculas e números)"
+                    readOnly
+                    className="flex-1 px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 font-mono uppercase cursor-not-allowed"
                   />
                   <button
                     type="button"
@@ -908,20 +806,21 @@ export default function TeacherHome() {
                   </button>
                 </div>
                 <p className="text-xs text-gray-500 mt-2">
-                  Digite um código único de 6 caracteres (apenas letras maiúsculas e números)
+                  Código gerado automaticamente - único para cada turma
                 </p>
               </div>
 
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                 <p className="text-sm text-blue-800">
-                  <strong>💡 Dica:</strong> Use o botão "Gerar" para criar um código automaticamente, ou digite um código personalizado.
+                  <strong>💡 Dica:</strong> O código é gerado automaticamente e serve para os alunos 
+                  encontrarem sua turma. Use o botão "Gerar" se precisar de um novo código.
                 </p>
               </div>
 
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-3 bg-[#6f42c1] hover:bg-[#5a35a0] text-white font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm xs:text-base"
+                className="w-full py-3 bg-[#6f42c1] hover:bg-[#5a35a0] text-white font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? 'Criando turma...' : 'Criar Turma'}
               </button>
@@ -933,9 +832,9 @@ export default function TeacherHome() {
       {/* Modal Criar Atividade */}
       {showCreateActivity && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-2xl xs:rounded-3xl shadow-2xl p-6 xs:p-8 max-w-md w-full max-h-[90vh] overflow-y-auto">
+          <div className="bg-white rounded-3xl shadow-2xl p-6 md:p-8 max-w-md w-full max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl xs:text-2xl font-bold text-gray-900">Nova Atividade</h2>
+              <h2 className="text-2xl font-bold text-gray-900">Nova Atividade</h2>
               <button
                 onClick={() => {
                   setShowCreateActivity(false);
@@ -944,7 +843,7 @@ export default function TeacherHome() {
                 className="p-2 text-gray-400 hover:text-gray-600"
                 disabled={loading}
               >
-                <X className="w-5 xs:w-6 h-5 xs:h-6" />
+                <X className="w-6 h-6" />
               </button>
             </div>
 
@@ -958,7 +857,7 @@ export default function TeacherHome() {
                   value={activityForm.title}
                   onChange={(e) => setActivityForm({ ...activityForm, title: e.target.value })}
                   placeholder="Ex: Exercícios de Geometria"
-                  className="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6f42c1] focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6f42c1] focus:border-transparent"
                   required
                   disabled={loading}
                   minLength={3}
@@ -974,7 +873,7 @@ export default function TeacherHome() {
                   onChange={(e) => setActivityForm({ ...activityForm, description: e.target.value })}
                   placeholder="Descrição da atividade..."
                   rows={3}
-                  className="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6f42c1] focus:border-transparent resize-none"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6f42c1] focus:border-transparent resize-none"
                   disabled={loading}
                 />
               </div>
@@ -1009,7 +908,7 @@ export default function TeacherHome() {
                     </div>
                   </div>
                 ) : (
-                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 xs:p-6 text-center hover:border-[#6f42c1] transition-colors">
+                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-[#6f42c1] transition-colors">
                     <input
                       type="file"
                       id="file-upload"
@@ -1021,7 +920,7 @@ export default function TeacherHome() {
                       htmlFor="file-upload"
                       className="cursor-pointer block"
                     >
-                      <FileText className="w-6 xs:w-8 h-6 xs:h-8 mx-auto mb-2 text-gray-400" />
+                      <FileText className="w-8 h-8 mx-auto mb-2 text-gray-400" />
                       <p className="text-sm text-gray-600 mb-1">
                         Clique para anexar um arquivo
                       </p>
@@ -1040,7 +939,7 @@ export default function TeacherHome() {
                 <select
                   value={activityForm.learningStyle}
                   onChange={(e) => setActivityForm({ ...activityForm, learningStyle: e.target.value as any })}
-                  className="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6f42c1] focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6f42c1] focus:border-transparent"
                   disabled={loading}
                 >
                   <option value="visual">Visual</option>
@@ -1053,11 +952,154 @@ export default function TeacherHome() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-3 bg-[#6f42c1] hover:bg-[#5a35a0] text-white font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm xs:text-base"
+                className="w-full py-3 bg-[#6f42c1] hover:bg-[#5a35a0] text-white font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? 'Criando atividade...' : 'Criar Atividade'}
               </button>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Sistemas Sensoriais */}
+      {showSensoryInfo && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-3xl shadow-2xl p-6 md:p-8 max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl md:text-3xl font-bold text-gray-900">Sistemas Sensoriais de Aprendizagem</h2>
+              <button
+                onClick={() => setShowSensoryInfo(false)}
+                className="p-2 text-gray-400 hover:text-gray-600"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            <div className="space-y-6">
+              <div className="bg-purple-50 border border-purple-200 rounded-xl p-6">
+                <h3 className="text-xl font-bold text-purple-900 mb-4">O que são os Sistemas Sensoriais?</h3>
+                <p className="text-purple-800">
+                  O modelo VARK reconhece quatro tipos principais de sistemas sensoriais que influenciam 
+                  como cada pessoa aprende e processa informações. Identificar o estilo predominante dos 
+                  alunos ajuda a criar atividades mais eficazes e engajadoras.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Visual */}
+                <div className="bg-blue-50 border border-blue-200 rounded-xl p-6">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                      <span className="text-blue-600 text-lg">👁️</span>
+                    </div>
+                    <h4 className="text-lg font-bold text-blue-900">Aprendizagem Visual</h4>
+                  </div>
+                  <div className="space-y-3">
+                    <p className="text-blue-800 text-sm">
+                      <strong>Características:</strong> Preferem imagens, diagramas, cores e organização visual.
+                    </p>
+                    <p className="text-blue-800 text-sm">
+                      <strong>Como aprendem melhor:</strong> Através de mapas mentais, gráficos, vídeos, 
+                      apresentações visuais e demonstrações.
+                    </p>
+                    <p className="text-blue-800 text-sm">
+                      <strong>Memorizam:</strong> O que viram - esquemas, cores, posição no espaço.
+                    </p>
+                    <p className="text-blue-800 text-sm">
+                      <strong>Atividades recomendadas:</strong> Infográficos, diagramas, apresentações 
+                      visuais, cartazes, organizadores gráficos.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Auditivo */}
+                <div className="bg-green-50 border border-green-200 rounded-xl p-6">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                      <span className="text-green-600 text-lg">👂</span>
+                    </div>
+                    <h4 className="text-lg font-bold text-green-900">Aprendizagem Auditiva</h4>
+                  </div>
+                  <div className="space-y-3">
+                    <p className="text-green-800 text-sm">
+                      <strong>Características:</strong> Preferem ouvir explicações e discussões.
+                    </p>
+                    <p className="text-green-800 text-sm">
+                      <strong>Como aprendem melhor:</strong> Através de palestras, debates, podcasts, 
+                      músicas e gravações de áudio.
+                    </p>
+                    <p className="text-green-800 text-sm">
+                      <strong>Memorizam:</strong> Detalhes de sons, tons de voz e palavras ouvidas.
+                    </p>
+                    <p className="text-green-800 text-sm">
+                      <strong>Atividades recomendadas:</strong> Gravações de áudio, discussões em grupo, 
+                      podcasts educativos, leitura em voz alta.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Leitura/Escrita */}
+                <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-6">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center">
+                      <span className="text-yellow-600 text-lg">📝</span>
+                    </div>
+                    <h4 className="text-lg font-bold text-yellow-900">Leitura/Escrita</h4>
+                  </div>
+                  <div className="space-y-3">
+                    <p className="text-yellow-800 text-sm">
+                      <strong>Características:</strong> Preferem textos escritos e materiais de leitura.
+                    </p>
+                    <p className="text-yellow-800 text-sm">
+                      <strong>Como aprendem melhor:</strong> Através de livros, artigos, resumos, 
+                      listas e anotações.
+                    </p>
+                    <p className="text-yellow-800 text-sm">
+                      <strong>Memorizam:</strong> Informações através da leitura e escrita repetida.
+                    </p>
+                    <p className="text-yellow-800 text-sm">
+                      <strong>Atividades recomendadas:</strong> Resumos escritos, pesquisas, 
+                      produção de textos, questionários, leituras dirigidas.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Cinestésico */}
+                <div className="bg-red-50 border border-red-200 rounded-xl p-6">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
+                      <span className="text-red-600 text-lg">🎯</span>
+                    </div>
+                    <h4 className="text-lg font-bold text-red-900">Aprendizagem Cinestésica</h4>
+                  </div>
+                  <div className="space-y-3">
+                    <p className="text-red-800 text-sm">
+                      <strong>Características:</strong> Preferem aprender através do movimento e experiência prática.
+                    </p>
+                    <p className="text-red-800 text-sm">
+                      <strong>Como aprendem melhor:</strong> Através de experimentos, simulações, 
+                      atividades manuais e movimento físico.
+                    </p>
+                    <p className="text-red-800 text-sm">
+                      <strong>Memorizam:</strong> O que fizeram ou sentiram fisicamente durante o aprendizado.
+                    </p>
+                    <p className="text-red-800 text-sm">
+                      <strong>Atividades recomendadas:</strong> Experimentos práticos, dramatizações, 
+                      construções, jogos educativos, atividades com movimento.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-gray-50 border border-gray-200 rounded-xl p-6">
+                <h4 className="font-bold text-gray-900 mb-3">💡 Dica para Professores</h4>
+                <p className="text-gray-700 text-sm">
+                  A maioria das pessoas possui uma combinação de estilos, com predominância de um ou dois. 
+                  Oferecer atividades que contemplem diferentes sistemas sensoriais aumenta o engajamento 
+                  e a eficácia do aprendizado para todos os alunos.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       )}
