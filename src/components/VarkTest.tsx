@@ -184,43 +184,43 @@ export default function VarkTest({ onComplete }: VarkTestProps) {
     const totalQuestions = varkQuestions.length;
     
     return (
-      <div className="min-h-screen bg-[#CED0FF] flex items-center justify-center p-4">
-        <div className="max-w-4xl w-full">
-          <div className="bg-white rounded-3xl shadow-2xl overflow-hidden">
+      <div className="min-h-screen bg-[#CED0FF] p-4 flex items-center justify-center">
+        <div className="w-full max-w-2xl">
+          <div className="bg-white rounded-2xl shadow-2xl overflow-hidden">
             {/* Header do Resultado */}
-            <div className="bg-[#150B53] p-6 text-center">
-              <h1 className="text-xl font-bold text-white mb-4">Resultado do seu Teste VARK</h1>
+            <div className="bg-[#150B53] p-4 sm:p-6 text-center">
+              <h1 className="text-lg sm:text-xl font-bold text-white mb-3">Resultado do seu Teste VARK</h1>
               
               {/* Resultado Principal */}
-              <div className="bg-white rounded-xl p-4 mx-auto max-w-2xl">
-                <h2 className="text-lg font-bold text-gray-900 mb-2">
-                  Seu estilo de aprendizagem predominante é: <span className="text-blue-600">{getStyleLabel(dominantStyle)}</span>
+              <div className="bg-white rounded-lg sm:rounded-xl p-3 sm:p-4 mx-auto">
+                <h2 className="text-base sm:text-lg font-bold text-gray-900 mb-2">
+                  Seu estilo predominante: <span className="text-blue-600">{getStyleLabel(dominantStyle)}</span>
                 </h2>
-                <p className="text-gray-700 text-sm">
+                <p className="text-gray-700 text-xs sm:text-sm">
                   {getStyleDescription(dominantStyle)}
                 </p>
               </div>
             </div>
 
-            <div className="p-6">
+            <div className="p-4 sm:p-6">
               {/* Distribuição dos Estilos */}
-              <h3 className="text-lg font-bold text-gray-900 mb-4 text-center">Distribuição dos seus Estilos</h3>
+              <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-3 text-center">Distribuição dos seus Estilos</h3>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-w-2xl mx-auto mb-8">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-6">
                 {Object.entries(scores).map(([style, score]) => (
                   <div 
                     key={style}
-                    className={`bg-gradient-to-r ${getStyleColor(style)} text-white p-3 rounded-xl shadow-lg`}
+                    className={`bg-gradient-to-r ${getStyleColor(style)} text-white p-3 rounded-lg shadow-lg`}
                   >
                     <div className="flex justify-between items-center mb-2">
-                      <span className="font-bold text-sm">{getStyleLabel(style)}</span>
-                      <span className="font-bold text-base">
+                      <span className="font-bold text-xs sm:text-sm">{getStyleLabel(style)}</span>
+                      <span className="font-bold text-sm sm:text-base">
                         {score}/10 ({Math.round((score / totalQuestions) * 100)}%)
                       </span>
                     </div>
-                    <div className="w-full bg-white bg-opacity-30 rounded-full h-2">
+                    <div className="w-full bg-white bg-opacity-30 rounded-full h-1.5 sm:h-2">
                       <div 
-                        className="bg-white h-2 rounded-full transition-all duration-1000 ease-out"
+                        className="bg-white h-1.5 sm:h-2 rounded-full transition-all duration-1000 ease-out"
                         style={{ width: `${(score / totalQuestions) * 100}%` }}
                       />
                     </div>
@@ -228,32 +228,32 @@ export default function VarkTest({ onComplete }: VarkTestProps) {
                 ))}
               </div>
 
-              {/* Dicas Específicas para o Estilo Dominante */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
-                <div className="bg-blue-50 rounded-xl p-4 border-2 border-blue-200">
-                  <h3 className="text-lg font-bold text-gray-900 mb-3 flex items-center gap-2">
-                    <div className="w-2 h-6 bg-blue-600 rounded-full"></div>
-                    Dicas de Estudo para {getStyleLabel(dominantStyle)}
+              {/* Dicas Específicas */}
+              <div className="space-y-4 mb-6">
+                <div className="bg-blue-50 rounded-lg p-3 border-2 border-blue-200">
+                  <h3 className="text-sm sm:text-base font-bold text-gray-900 mb-2 flex items-center gap-2">
+                    <div className="w-1.5 h-4 sm:h-5 bg-blue-600 rounded-full"></div>
+                    Dicas de Estudo
                   </h3>
-                  <ul className="space-y-2 text-gray-700 text-sm">
-                    {getStudyTips(dominantStyle).map((tip, index) => (
-                      <li key={index} className="flex items-start gap-2">
-                        <div className="w-1.5 h-1.5 bg-blue-600 rounded-full mt-1.5 flex-shrink-0"></div>
+                  <ul className="space-y-1.5 text-gray-700 text-xs sm:text-sm">
+                    {getStudyTips(dominantStyle).slice(0, 3).map((tip, index) => (
+                      <li key={index} className="flex items-start gap-1.5">
+                        <div className="w-1 h-1 bg-blue-600 rounded-full mt-1.5 flex-shrink-0"></div>
                         <span>{tip}</span>
                       </li>
                     ))}
                   </ul>
                 </div>
 
-                <div className="bg-purple-50 rounded-xl p-4 border-2 border-purple-200">
-                  <h3 className="text-lg font-bold text-gray-900 mb-3 flex items-center gap-2">
-                    <div className="w-2 h-6 bg-purple-600 rounded-full"></div>
-                    Dicas de Matemática para {getStyleLabel(dominantStyle)}
+                <div className="bg-purple-50 rounded-lg p-3 border-2 border-purple-200">
+                  <h3 className="text-sm sm:text-base font-bold text-gray-900 mb-2 flex items-center gap-2">
+                    <div className="w-1.5 h-4 sm:h-5 bg-purple-600 rounded-full"></div>
+                    Dicas de Matemática
                   </h3>
-                  <ul className="space-y-2 text-gray-700 text-sm">
-                    {getMathTips(dominantStyle).map((tip, index) => (
-                      <li key={index} className="flex items-start gap-2">
-                        <div className="w-1.5 h-1.5 bg-purple-600 rounded-full mt-1.5 flex-shrink-0"></div>
+                  <ul className="space-y-1.5 text-gray-700 text-xs sm:text-sm">
+                    {getMathTips(dominantStyle).slice(0, 3).map((tip, index) => (
+                      <li key={index} className="flex items-start gap-1.5">
+                        <div className="w-1 h-1 bg-purple-600 rounded-full mt-1.5 flex-shrink-0"></div>
                         <span>{tip}</span>
                       </li>
                     ))}
@@ -264,7 +264,7 @@ export default function VarkTest({ onComplete }: VarkTestProps) {
               {/* Botão Continuar */}
               <button
                 onClick={onComplete}
-                className="w-full py-3 bg-[#150B53] hover:bg-[#2a1a7a] text-white font-medium rounded-lg transition-colors"
+                className="w-full py-2.5 sm:py-3 bg-[#150B53] hover:bg-[#2a1a7a] text-white font-medium rounded-lg transition-colors text-sm sm:text-base"
               >
                 Continuar para Minhas Turmas
               </button>
@@ -278,21 +278,21 @@ export default function VarkTest({ onComplete }: VarkTestProps) {
   // Tela de explicação do teste
   if (currentQuestion === -1 && !showResults) {
     return (
-      <div className="min-h-screen bg-[#CED0FF] flex items-center justify-center p-4">
-        <div className="max-w-4xl w-full">
-          <div className="bg-white rounded-3xl shadow-2xl overflow-hidden">
+      <div className="min-h-screen bg-[#CED0FF] p-4 flex items-center justify-center">
+        <div className="w-full max-w-2xl">
+          <div className="bg-white rounded-2xl shadow-2xl overflow-hidden">
             {/* Header */}
-            <div className="bg-[#150B53] p-6 text-center">
-              <h1 className="text-xl font-bold text-white mb-2">Teste VARK</h1>
-              <p className="text-[#c8b3ff] text-xs">
-                Descubra seu estilo de aprendizagem preferido e potencialize seus estudos em matemática!
+            <div className="bg-[#150B53] p-4 sm:p-6 text-center">
+              <h1 className="text-lg sm:text-xl font-bold text-white mb-2">Teste VARK</h1>
+              <p className="text-[#c8b3ff] text-xs sm:text-sm">
+                Descubra seu estilo de aprendizagem preferido
               </p>
             </div>
 
-            <div className="p-6">
-              <div className="mb-6">
-                <h2 className="text-lg font-bold text-gray-900 mb-3">Como funciona:</h2>
-                <ul className="space-y-2 text-gray-700 text-sm">
+            <div className="p-4 sm:p-6">
+              <div className="mb-4 sm:mb-6">
+                <h2 className="text-base sm:text-lg font-bold text-gray-900 mb-2 sm:mb-3">Como funciona:</h2>
+                <ul className="space-y-1.5 text-gray-700 text-xs sm:text-sm">
                   <li>• 10 perguntas sobre suas preferências de aprendizagem</li>
                   <li>• Cada pergunta tem 4 alternativas (A, B, C, D)</li>
                   <li>• Resultado personalizado com dicas de estudo</li>
@@ -302,7 +302,7 @@ export default function VarkTest({ onComplete }: VarkTestProps) {
 
               <button
                 onClick={handleStartTest}
-                className="w-full py-3 bg-[#150B53] hover:bg-[#2a1a7a] text-white font-medium rounded-lg transition-colors flex items-center justify-center gap-2"
+                className="w-full py-2.5 sm:py-3 bg-[#150B53] hover:bg-[#2a1a7a] text-white font-medium rounded-lg transition-colors flex items-center justify-center gap-2 text-sm sm:text-base"
               >
                 Iniciar Teste
                 <ChevronRight className="w-4 h-4" />
@@ -319,81 +319,81 @@ export default function VarkTest({ onComplete }: VarkTestProps) {
   }
 
   return (
-    <div className="min-h-screen bg-[#CED0FF] flex items-center justify-center p-4">
-      <div className="max-w-4xl w-full">
-        <div className="bg-white rounded-3xl shadow-2xl overflow-hidden">
+    <div className="min-h-screen bg-[#CED0FF] p-3 sm:p-4 flex items-center justify-center">
+      <div className="w-full max-w-2xl">
+        <div className="bg-white rounded-xl sm:rounded-2xl shadow-2xl overflow-hidden">
           {/* Header */}
-          <div className="bg-[#150B53] p-6 text-center">
-            <h1 className="text-xl font-bold text-white mb-2">Teste VARK</h1>
+          <div className="bg-[#150B53] p-4 sm:p-6 text-center">
+            <h1 className="text-lg sm:text-xl font-bold text-white mb-1 sm:mb-2">Teste VARK</h1>
             <p className="text-[#c8b3ff] text-xs">
-              Descubra seu estilo de aprendizagem preferido e potencialize seus estudos em matemática!
+              Descubra seu estilo de aprendizagem preferido
             </p>
           </div>
 
           {/* Barra de progresso */}
-          <div className="p-2 bg-gray-100">
-            <div className="h-2 bg-[#c8b3ff] rounded-full transition-all duration-300" style={{ width: `${progress}%` }} />
+          <div className="p-1.5 sm:p-2 bg-gray-100">
+            <div className="h-1.5 sm:h-2 bg-[#c8b3ff] rounded-full transition-all duration-300" style={{ width: `${progress}%` }} />
           </div>
 
-          <div className="p-6">
+          <div className="p-4 sm:p-6">
             {/* Contador de questões */}
-            <div className="mb-4">
-              <span className="text-xs font-semibold text-[#6f42c1] bg-[#f0ebff] px-3 py-1 rounded-full">
+            <div className="mb-3">
+              <span className="text-xs font-semibold text-[#6f42c1] bg-[#f0ebff] px-2.5 py-1 rounded-full">
                 Questão {currentQuestion + 1} de {varkQuestions.length}
               </span>
             </div>
 
             {/* Pergunta */}
-            <h2 className="text-base font-semibold text-gray-900 mb-4">
+            <h2 className="text-sm sm:text-base font-semibold text-gray-900 mb-3 sm:mb-4 leading-tight">
               {varkQuestions[currentQuestion].question}
             </h2>
 
-            {/* Opções */}
-            <div className="space-y-2 mb-6">
+            {/* Opções com espaçamento reduzido */}
+            <div className="space-y-1.5 sm:space-y-2 mb-4 sm:mb-6">
               {varkQuestions[currentQuestion].options.map((option, index) => (
                 <button
                   key={index}
                   onClick={() => setSelectedOption(index)}
-                  className={`w-full p-3 text-left rounded-lg border transition-all ${
+                  className={`w-full p-2.5 sm:p-3 text-left rounded-lg border transition-all ${
                     selectedOption === index
                       ? 'border-[#6f42c1] bg-[#f0ebff]'
                       : 'border-gray-200 hover:border-[#c8b3ff] bg-white'
                   }`}
                 >
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2 sm:gap-3">
                     <div
-                      className={`w-4 h-4 rounded-full border flex items-center justify-center ${
+                      className={`w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full border flex items-center justify-center flex-shrink-0 ${
                         selectedOption === index ? 'border-[#6f42c1]' : 'border-gray-300'
                       }`}
                     >
                       {selectedOption === index && (
-                        <div className="w-2 h-2 rounded-full bg-[#6f42c1]" />
+                        <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-[#6f42c1]" />
                       )}
                     </div>
-                    <span className="text-gray-900 text-sm">{option.text}</span>
+                    <span className="text-gray-900 text-xs sm:text-sm leading-tight">{option.text}</span>
                   </div>
                 </button>
               ))}
             </div>
 
             {/* Botões de navegação */}
-            <div className="flex gap-3">
+            <div className="flex gap-2 sm:gap-3">
               <button
                 onClick={handlePrevious}
                 disabled={currentQuestion === 0}
-                className="flex-1 py-2 border border-gray-300 text-gray-700 font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-1 text-sm"
+                className="flex-1 py-2 sm:py-2.5 border border-gray-300 text-gray-700 font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-1 text-xs sm:text-sm"
               >
-                <ChevronLeft className="w-4 h-4" />
+                <ChevronLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                 Anterior
               </button>
               
               <button
                 onClick={handleNext}
                 disabled={selectedOption === null}
-                className="flex-1 py-2 bg-[#150B53] hover:bg-[#2a1a7a] text-white font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-1 text-sm"
+                className="flex-1 py-2 sm:py-2.5 bg-[#150B53] hover:bg-[#2a1a7a] text-white font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-1 text-xs sm:text-sm"
               >
                 {currentQuestion < varkQuestions.length - 1 ? 'Próxima' : 'Ver Resultado'}
-                <ChevronRight className="w-4 h-4" />
+                <ChevronRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               </button>
             </div>
           </div>
