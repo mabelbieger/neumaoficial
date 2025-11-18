@@ -24,6 +24,10 @@ interface Activity {
   file_type?: string;
 }
 
+// Chaves únicas para o localStorage (simulando um "banco de dados" compartilhado)
+const CLASSROOMS_STORAGE_KEY = 'neuma_classrooms';
+const ACTIVITIES_STORAGE_KEY = 'neuma_activities';
+
 export default function TeacherHome() {
   const { user, signOut } = useAuth();
   const [classrooms, setClassrooms] = useState<Classroom[]>([]);
@@ -97,32 +101,43 @@ export default function TeacherHome() {
     classroom.code.toLowerCase().includes(classroomSearch.toLowerCase())
   );
 
-  // Carrega turmas do localStorage
+  // Carrega TODAS as turmas do localStorage (de todos os professores)
   const loadClassroomsFromStorage = () => {
     try {
-      const saved = localStorage.getItem(`classrooms_${user?.id}`);
+      const saved = localStorage.getItem(CLASSROOMS_STORAGE_KEY);
       if (saved) {
-        const parsed = JSON.parse(saved);
-        setClassrooms(parsed);
+        const allClassrooms = JSON.parse(saved);
+        // Filtra apenas as turmas do professor logado
+        const teacherClassrooms = allClassrooms.filter((classroom: Classroom) => 
+          classroom.teacher_id === user?.id
+        );
+        setClassrooms(teacherClassrooms);
         
         // Seleciona a primeira turma se não houver seleção
-        if (parsed.length > 0 && !selectedClassroom) {
-          setSelectedClassroom(parsed[0].id);
+        if (teacherClassrooms.length > 0 && !selectedClassroom) {
+          setSelectedClassroom(teacherClassrooms[0].id);
         }
+      } else {
+        setClassrooms([]);
       }
     } catch (err) {
       console.error('Erro ao carregar turmas do storage:', err);
+      setClassrooms([]);
     }
   };
 
-  // Carrega atividades do localStorage
+  // Carrega TODAS as atividades do localStorage e filtra pela turma selecionada
   const loadActivitiesFromStorage = (classroomId: string) => {
     try {
-      const saved = localStorage.getItem(`activities_${classroomId}`);
+      const saved = localStorage.getItem(ACTIVITIES_STORAGE_KEY);
       if (saved) {
-        const parsed = JSON.parse(saved);
-        setActivities(parsed);
-        setFilteredActivities(parsed);
+        const allActivities = JSON.parse(saved);
+        // Filtra atividades da turma selecionada
+        const classroomActivities = allActivities.filter((activity: Activity) => 
+          activity.classroom_id === classroomId
+        );
+        setActivities(classroomActivities);
+        setFilteredActivities(classroomActivities);
       } else {
         setActivities([]);
         setFilteredActivities([]);
@@ -134,14 +149,50 @@ export default function TeacherHome() {
     }
   };
 
-  // Salva turmas no localStorage
-  const saveClassroomsToStorage = (classrooms: Classroom[]) => {
-    localStorage.setItem(`classrooms_${user?.id}`, JSON.stringify(classrooms));
+  // Salva TODAS as turmas no localStorage
+  const saveClassroomsToStorage = (classroomsToSave: Classroom[]) => {
+    try {
+      // Pega todas as turmas existentes
+      const saved = localStorage.getItem(CLASSROOMS_STORAGE_KEY);
+      let allClassrooms: Classroom[] = [];
+      
+      if (saved) {
+        allClassrooms = JSON.parse(saved);
+      }
+      
+      // Remove turmas do professor atual e adiciona as novas
+      const otherTeachersClassrooms = allClassrooms.filter((classroom: Classroom) => 
+        classroom.teacher_id !== user?.id
+      );
+      
+      const updatedClassrooms = [...otherTeachersClassrooms, ...classroomsToSave];
+      localStorage.setItem(CLASSROOMS_STORAGE_KEY, JSON.stringify(updatedClassrooms));
+    } catch (err) {
+      console.error('Erro ao salvar turmas:', err);
+    }
   };
 
-  // Salva atividades no localStorage
-  const saveActivitiesToStorage = (classroomId: string, activities: Activity[]) => {
-    localStorage.setItem(`activities_${classroomId}`, JSON.stringify(activities));
+  // Salva TODAS as atividades no localStorage
+  const saveActivitiesToStorage = (activitiesToSave: Activity[]) => {
+    try {
+      // Pega todas as atividades existentes
+      const saved = localStorage.getItem(ACTIVITIES_STORAGE_KEY);
+      let allActivities: Activity[] = [];
+      
+      if (saved) {
+        allActivities = JSON.parse(saved);
+      }
+      
+      // Remove atividades da turma atual e adiciona as novas
+      const otherClassroomsActivities = allActivities.filter((activity: Activity) => 
+        activity.classroom_id !== selectedClassroom
+      );
+      
+      const updatedActivities = [...otherClassroomsActivities, ...activitiesToSave];
+      localStorage.setItem(ACTIVITIES_STORAGE_KEY, JSON.stringify(updatedActivities));
+    } catch (err) {
+      console.error('Erro ao salvar atividades:', err);
+    }
   };
 
   // Gera código único
@@ -225,14 +276,12 @@ export default function TeacherHome() {
   const deleteActivity = (activityId: string) => {
     const updatedActivities = activities.filter(a => a.id !== activityId);
     setActivities(updatedActivities);
-    if (selectedClassroom) {
-      saveActivitiesToStorage(selectedClassroom, updatedActivities);
-    }
+    saveActivitiesToStorage(updatedActivities);
     setSuccessMessage('Atividade excluída com sucesso!');
     setTimeout(() => setSuccessMessage(null), 3000);
   };
 
-  // Cria turma (apenas no frontend)
+  // Cria turma
   const handleCreateClassroom = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -257,16 +306,20 @@ export default function TeacherHome() {
 
       const formattedCode = newClassroomCode.trim().toUpperCase().replace(/\s/g, '');
 
-      // Verifica se o código já existe localmente
-      const codeExists = classrooms.some(classroom => 
-        classroom.code === formattedCode
-      );
+      // Verifica se o código já existe (em todas as turmas)
+      const saved = localStorage.getItem(CLASSROOMS_STORAGE_KEY);
+      if (saved) {
+        const allClassrooms = JSON.parse(saved);
+        const codeExists = allClassrooms.some((classroom: Classroom) => 
+          classroom.code === formattedCode
+        );
 
-      if (codeExists) {
-        // Gera um novo código se o atual já existir
-        const newCode = generateCodeClient();
-        setNewClassroomCode(newCode);
-        throw new Error('Código já em uso. Um novo código foi gerado automaticamente.');
+        if (codeExists) {
+          // Gera um novo código se o atual já existir
+          const newCode = generateCodeClient();
+          setNewClassroomCode(newCode);
+          throw new Error('Código já em uso. Um novo código foi gerado automaticamente.');
+        }
       }
 
       // Cria nova turma
@@ -305,7 +358,7 @@ export default function TeacherHome() {
     }
   };
 
-  // Cria atividade (apenas no frontend)
+  // Cria atividade
   const handleCreateActivity = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -338,7 +391,7 @@ export default function TeacherHome() {
       // Atualiza estado e salva no localStorage
       const updatedActivities = [newActivity, ...activities];
       setActivities(updatedActivities);
-      saveActivitiesToStorage(selectedClassroom, updatedActivities);
+      saveActivitiesToStorage(updatedActivities);
 
       // Mensagem de sucesso
       let successMsg = `✅ Atividade "${newActivity.title}" criada com sucesso!`;
@@ -669,7 +722,7 @@ export default function TeacherHome() {
                               {/* Conteúdo expandido */}
                               {expandedActivity === activity.id && (
                                 <div className="mt-3 space-y-3 animate-fadeIn border-t pt-3">
-                                  {/* Descrição completa (apenas se expandido) */}
+                                  {/* Descrição completa (apenas se expandido e se for longa) */}
                                   {activity.description && activity.description.length > 150 && (
                                     <div>
                                       <h5 className="font-medium text-gray-900 mb-2 text-sm">Descrição completa:</h5>
