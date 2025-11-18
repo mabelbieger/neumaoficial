@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { BookOpen, LogOut, Check, Users, FileText, X, AlertCircle, Download, Search, ArrowLeft } from 'lucide-react';
+import { BookOpen, LogOut, Check, Users, FileText, X, AlertCircle, Download, Search, ArrowLeft, Lightbulb, Brain, Target } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import logo from '../assets/logo.png';
 
@@ -197,46 +197,135 @@ export default function StudentHome({ onStartTest, hasCompletedTest, varkResult 
   };
 
   const getStyleInfo = (style: string) => {
-    const styles: Record<string, { name: string; description: string; tips: string[] }> = {
+    const styles: Record<string, { 
+      name: string; 
+      description: string; 
+      tips: string[];
+      characteristics: string[];
+      mathStrategies: string[];
+      studyMethods: string[];
+      icon: string;
+      color: string;
+    }> = {
       visual: {
         name: 'Visual',
         description: 'Você aprende melhor através de imagens, gráficos, diagramas e demonstrações visuais.',
+        characteristics: [
+          'Prefere ver informações em forma de imagens',
+          'Gosta de mapas mentais e esquemas coloridos',
+          'Memoriza através de associações visuais',
+          'Entende melhor com demonstrações visuais'
+        ],
         tips: [
           'Use mapas mentais e esquemas coloridos',
           'Assista vídeos educativos',
           'Destaque informações importantes com cores',
           'Use diagramas e infográficos para estudar'
-        ]
+        ],
+        mathStrategies: [
+          'Desenhe problemas matemáticos',
+          'Use gráficos e tabelas coloridas',
+          'Visualize fórmulas geometricamente',
+          'Crie flashcards com imagens'
+        ],
+        studyMethods: [
+          'Mapas mentais coloridos',
+          'Vídeos explicativos',
+          'Diagramas e fluxogramas',
+          'Post-its coloridos'
+        ],
+        icon: '👁️',
+        color: 'from-blue-500 to-blue-600'
       },
       auditory: {
         name: 'Auditivo',
         description: 'Você aprende melhor ouvindo explicações, conversas e discussões.',
+        characteristics: [
+          'Aprende melhor através de explicações orais',
+          'Gosta de discutir ideias em grupo',
+          'Memoriza com ritmos e músicas',
+          'Prefere aulas expositivas'
+        ],
         tips: [
           'Grave áudios das suas anotações',
           'Participe de discussões em grupo',
-          'Ouça podcasts educativos',
+          'Use músicas ou ritmos para memorizar',
           'Explique o conteúdo em voz alta'
-        ]
+        ],
+        mathStrategies: [
+          'Explique problemas em voz alta',
+          'Use mnemônicos com ritmo',
+          'Grave áudios com fórmulas',
+          'Discuta soluções com colegas'
+        ],
+        studyMethods: [
+          'Gravações de áudio',
+          'Discussões em grupo',
+          'Podcasts educativos',
+          'Leitura em voz alta'
+        ],
+        icon: '👂',
+        color: 'from-green-500 to-green-600'
       },
       reading: {
         name: 'Leitura/Escrita',
         description: 'Você aprende melhor lendo e escrevendo textos.',
+        characteristics: [
+          'Prefere ler instruções escritas',
+          'Gosta de fazer anotações detalhadas',
+          'Aprende através da leitura',
+          'Memoriza escrevendo e reescrevendo'
+        ],
         tips: [
           'Faça resumos e anotações detalhadas',
           'Leia livros e artigos sobre o tema',
           'Reescreva informações com suas palavras',
           'Crie listas e glossários'
-        ]
+        ],
+        mathStrategies: [
+          'Escreva passo a passo a resolução',
+          'Crie listas de fórmulas',
+          'Faça resumos escritos',
+          'Leia problemas em voz alta'
+        ],
+        studyMethods: [
+          'Resumos escritos',
+          'Listas organizadas',
+          'Cartões de estudo',
+          'Textos explicativos'
+        ],
+        icon: '📖',
+        color: 'from-purple-500 to-purple-600'
       },
       kinesthetic: {
         name: 'Cinestésico',
         description: 'Você aprende melhor através da prática e experiências concretas.',
+        characteristics: [
+          'Aprende fazendo e praticando',
+          'Gosta de atividades hands-on',
+          'Memoriza através do movimento',
+          'Prefere aprendizagem prática'
+        ],
         tips: [
+          'Use movimentos físicos para aprender',
           'Faça experimentos práticos',
-          'Use simulações e jogos educativos',
-          'Estude em diferentes ambientes',
-          'Associe movimentos ao aprendizado'
-        ]
+          'Use objetos físicos para representar conceitos',
+          'Estude enquanto caminha ou se movimenta'
+        ],
+        mathStrategies: [
+          'Use materiais manipuláveis',
+          'Represente problemas com objetos',
+          'Faça gestos para operações',
+          'Pratique com jogos matemáticos'
+        ],
+        studyMethods: [
+          'Aprendizagem prática',
+          'Experimentação',
+          'Jogos educativos',
+          'Simulações'
+        ],
+        icon: '🔄',
+        color: 'from-orange-500 to-orange-600'
       }
     };
 
@@ -257,8 +346,8 @@ export default function StudentHome({ onStartTest, hasCompletedTest, varkResult 
     const colors: Record<string, string> = {
       visual: 'bg-blue-100 text-blue-800 border-blue-200',
       auditory: 'bg-green-100 text-green-800 border-green-200',
-      reading: 'bg-yellow-100 text-yellow-800 border-yellow-200',
-      kinesthetic: 'bg-red-100 text-red-800 border-red-200',
+      reading: 'bg-purple-100 text-purple-800 border-purple-200',
+      kinesthetic: 'bg-orange-100 text-orange-800 border-orange-200',
     };
     return colors[style] || 'bg-gray-100 text-gray-800 border-gray-200';
   };
@@ -369,31 +458,80 @@ export default function StudentHome({ onStartTest, hasCompletedTest, varkResult 
           </div>
         ) : (
           <div className="space-y-6 xs:space-y-8">
-            {/* Seção Fixa com Dicas do Estilo do Aluno */}
+            {/* Seção Fixa com Informações do Sistema Sensorial */}
             {styleInfo && (
-              <div className="bg-gradient-to-br from-[#6f42c1] to-[#8b5cf6] rounded-2xl xs:rounded-3xl shadow-xl p-4 xs:p-6 text-white">
-                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+              <div className={`bg-gradient-to-r ${styleInfo.color} rounded-2xl xs:rounded-3xl shadow-xl p-4 xs:p-6 text-white`}>
+                <div className="flex flex-col lg:flex-row gap-6">
+                  {/* Informações Principais */}
                   <div className="flex-1">
-                    <h2 className="text-lg xs:text-xl font-bold mb-2">Seu Estilo: {styleInfo.name}</h2>
-                    <p className="text-sm xs:text-base mb-3 text-white/90">{styleInfo.description}</p>
-                    <div className="flex flex-wrap gap-2">
-                      {styleInfo.tips.slice(0, 3).map((tip, index) => (
-                        <span key={index} className="text-xs bg-white/20 px-2 py-1 rounded-full">
-                          {tip}
-                        </span>
-                      ))}
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="text-3xl">{styleInfo.icon}</div>
+                      <div>
+                        <h2 className="text-xl xs:text-2xl font-bold">Seu Sistema Sensorial: {styleInfo.name}</h2>
+                        <p className="text-white/90 text-sm xs:text-base mt-1">{styleInfo.description}</p>
+                      </div>
+                    </div>
+
+                    {/* Características */}
+                    <div className="mb-4">
+                      <h3 className="font-bold mb-2 flex items-center gap-2">
+                        <Brain className="w-4 h-4" />
+                        Suas Características:
+                      </h3>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        {styleInfo.characteristics.map((char, index) => (
+                          <div key={index} className="flex items-start gap-2">
+                            <Target className="w-3 h-3 mt-0.5 flex-shrink-0" />
+                            <span className="text-xs xs:text-sm">{char}</span>
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <div className="text-3xl xs:text-4xl font-bold">{styleInfo.name}</div>
-                    <button
-                      onClick={onStartTest}
-                      disabled={hasTakenTest}
-                      className="mt-2 px-4 py-2 bg-white/20 hover:bg-white/30 text-white text-xs xs:text-sm font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      {hasTakenTest ? 'Teste Concluído' : 'Refazer Teste'}
-                    </button>
+
+                  {/* Estratégias de Aprendizado */}
+                  <div className="lg:w-96 space-y-4">
+                    <div className="bg-white/20 rounded-xl p-4">
+                      <h3 className="font-bold mb-2 flex items-center gap-2">
+                        <Lightbulb className="w-4 h-4" />
+                        Estratégias para Matemática:
+                      </h3>
+                      <ul className="space-y-1 text-xs xs:text-sm">
+                        {styleInfo.mathStrategies.map((strategy, index) => (
+                          <li key={index} className="flex items-start gap-2">
+                            <div className="w-1 h-1 bg-white rounded-full mt-1.5 flex-shrink-0"></div>
+                            <span>{strategy}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+
+                    <div className="bg-white/20 rounded-xl p-4">
+                      <h3 className="font-bold mb-2 flex items-center gap-2">
+                        <BookOpen className="w-4 h-4" />
+                        Métodos de Estudo:
+                      </h3>
+                      <ul className="space-y-1 text-xs xs:text-sm">
+                        {styleInfo.studyMethods.map((method, index) => (
+                          <li key={index} className="flex items-start gap-2">
+                            <div className="w-1 h-1 bg-white rounded-full mt-1.5 flex-shrink-0"></div>
+                            <span>{method}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
                   </div>
+                </div>
+
+                {/* Botão para refazer teste */}
+                <div className="flex justify-end mt-4">
+                  <button
+                    onClick={onStartTest}
+                    disabled={hasTakenTest}
+                    className="px-4 py-2 bg-white/20 hover:bg-white/30 text-white text-xs xs:text-sm font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                  >
+                    {hasTakenTest ? 'Teste Concluído' : 'Refazer Teste'}
+                  </button>
                 </div>
               </div>
             )}
