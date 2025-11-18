@@ -30,7 +30,7 @@ export default function Login({ onNavigateToSignUp }: LoginProps) {
   return (
     <div className="min-h-screen bg-[#1a0f3e] flex items-center justify-center p-4">
       <div className="w-full max-w-5xl bg-white rounded-3xl shadow-2xl overflow-hidden flex">
-        <div className="flex-1 bg-gradient-to-br from-[#d4c5f9] to-[#b89fff] p-12 flex items-center justify-center relative overflow-hidden">
+        <div className="flex-1 bg-gradient-to-br from-[#CED0FF] to-[#CED0FF] p-12 flex items-center justify-center relative overflow-hidden">
           <div className="absolute inset-0 opacity-10">
             <img 
               src={logo} 
@@ -52,7 +52,7 @@ export default function Login({ onNavigateToSignUp }: LoginProps) {
 
         <div className="flex-1 p-12 flex flex-col justify-center">
           <div className="flex items-center gap-2 mb-8">
-            <h1 className="text-3xl font-bold text-gray-900">Login</h1>
+            <h1 className="text-3xl font-bold text-gray-900 ">Login</h1>
             
           </div>
 
@@ -88,7 +88,8 @@ export default function Login({ onNavigateToSignUp }: LoginProps) {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 bg-[#c8b3ff] hover:bg-[#b89fff] text-gray-900 font-medium rounded-lg transition-colors disabled:opacity-50"
+              className="w-full py-3 bg-[#CED0FF]
+ hover:bg-[#b89fff] text-gray-900 font-medium rounded-lg transition-colors disabled:opacity-50"
             >
               {loading ? 'Carregando...' : 'Fazer login'}
             </button>

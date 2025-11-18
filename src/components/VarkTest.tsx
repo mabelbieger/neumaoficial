@@ -65,11 +65,10 @@ export default function VarkTest({ onComplete }: VarkTestProps) {
   const progress = ((currentQuestion + 1) / varkQuestions.length) * 100;
 
   return (
-    <div className="min-h-screen bg-[#1a0f3e] p-4">
+    <div className="min-h-screen bg-[#CED0FF] p-4">
       <div className="max-w-4xl mx-auto">
         <div className="bg-white rounded-3xl shadow-2xl overflow-hidden">
-          <div className="bg-gradient-to-r from-[#1a0f3e] to-[#2d1b5e] p-8 text-center">
-            <Brain className="w-16 h-16 mx-auto mb-4 text-[#c8b3ff]" />
+          <div className="bg-gradient-to-r from-[#150B53] to-[#150B53] p-8 text-center">
             <h1 className="text-4xl font-bold text-white mb-2">Teste VARK</h1>
             <p className="text-[#c8b3ff]">Descubra o seu estilo de aprendizagem!</p>
           </div>
@@ -119,7 +118,7 @@ export default function VarkTest({ onComplete }: VarkTestProps) {
             <button
               onClick={handleNext}
               disabled={selectedOption === null}
-              className="w-full py-4 bg-[#6f42c1] hover:bg-[#5a35a0] text-white font-medium rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="w-full py-4 bg-[#CED0FF] hover:bg-[#CED0FF] text-black font-medium rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {currentQuestion < varkQuestions.length - 1 ? 'Próxima' : 'Ver Resultado'}
               <ChevronRight className="w-5 h-5" />
