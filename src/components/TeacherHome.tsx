@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
-import { Brain, LogOut, Plus, Users, FileText, X, AlertCircle, CheckCircle, RefreshCw, Download, Trash2 } from 'lucide-react';
+import { LogOut, Plus, Users, FileText, X, AlertCircle, CheckCircle, RefreshCw, Download, Trash2 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import logo from '../assets/logo.png';
 
 interface Classroom {
   id: string;
@@ -372,17 +373,20 @@ export default function TeacherHome() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#f0ebff] to-white">
-      <nav className="bg-white shadow-sm border-b border-gray-200">
+    <nav className="bg-[#150B53] shadow-sm border-b border-[#150B53]">
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Brain className="w-8 h-8 text-[#6f42c1]" />
-            <span className="text-2xl font-bold text-[#6f42c1]">neuma</span>
-          </div>
+  <img 
+    src={logo} 
+    alt="Neuma Logo" 
+    className="w-8 h-8 object-contain"
+  />
+</div>
           <div className="flex items-center gap-4">
-            <span className="text-gray-700">Prof. {user?.full_name}</span>
+            <span className="text-white">Prof. {user?.full_name}</span>
             <button
               onClick={signOut}
-              className="p-2 text-gray-600 hover:text-[#6f42c1] transition-colors"
+              className="p-2 text-white hover:text-[#6f42c1] transition-colors"
             >
               <LogOut className="w-5 h-5" />
             </button>
@@ -432,7 +436,7 @@ export default function TeacherHome() {
               setShowCreateClassroom(true);
               setNewClassroomCode(generateCodeClient());
             }}
-            className="flex items-center gap-2 px-6 py-3 bg-[#6f42c1] hover:bg-[#5a35a0] text-white font-semibold rounded-xl transition-colors"
+            className="flex items-center gap-2 px-6 py-3 bg-[#150B53] hover:bg-[#5a35a0] text-white font-semibold rounded-xl transition-colors"
           >
             <Plus className="w-5 h-5" />
             Nova Turma
@@ -449,7 +453,7 @@ export default function TeacherHome() {
                 setShowCreateClassroom(true);
                 setNewClassroomCode(generateCodeClient());
               }}
-              className="px-8 py-3 bg-[#6f42c1] hover:bg-[#5a35a0] text-white font-semibold rounded-xl transition-colors"
+              className="px-8 py-3 bg-[#150B53] hover:bg-[#5a35a0] text-white font-semibold rounded-xl transition-colors"
             >
               Criar Primeira Turma
             </button>

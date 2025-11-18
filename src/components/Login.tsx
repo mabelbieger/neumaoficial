@@ -68,12 +68,9 @@ export default function Login({ onNavigateToSignUp }: LoginProps) {
 
           <form onSubmit={handleSubmit} className="space-y-3 xs:space-y-4 sm:space-y-5">
             <div>
-              <label className="block text-xs xs:text-sm font-medium text-gray-700 mb-1">
-                E-mail
-              </label>
               <input
                 type="email"
-                placeholder="seu@email.com"
+                placeholder="E-mail"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full px-3 xs:px-4 py-2 xs:py-3 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6f42c1] focus:border-transparent transition-all"
@@ -82,12 +79,9 @@ export default function Login({ onNavigateToSignUp }: LoginProps) {
             </div>
 
             <div>
-              <label className="block text-xs xs:text-sm font-medium text-gray-700 mb-1">
-                Senha
-              </label>
               <input
                 type="password"
-                placeholder="Sua senha"
+                placeholder="Senha"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full px-3 xs:px-4 py-2 xs:py-3 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6f42c1] focus:border-transparent transition-all"
@@ -98,7 +92,7 @@ export default function Login({ onNavigateToSignUp }: LoginProps) {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 xs:py-3 text-sm bg-[#c8b3ff] hover:bg-[#b89fff] text-gray-900 font-semibold rounded-lg transition-all duration-300 disabled:opacity-50 hover:shadow-lg transform hover:scale-[1.02] mt-2"
+              className="w-full py-3 xs:py-3 text-sm bg-[#c8b3ff] hover:bg-[#b89fff] text-gray-900 font-semibold rounded-lg transition-all duration-300 disabled:opacity-50 hover:shadow-lg transform hover:scale-[1.02]"
             >
               {loading ? (
                 <div className="flex items-center justify-center">

@@ -290,7 +290,7 @@ export default function StudentHome({ onStartTest, hasCompletedTest, varkResult 
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#f0ebff] to-white">
-      <nav className="bg-white shadow-sm border-b border-gray-200">
+    <nav className="bg-[#150B53] shadow-sm border-b border-[#150B53]">
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <img 
@@ -298,10 +298,9 @@ export default function StudentHome({ onStartTest, hasCompletedTest, varkResult 
               alt="Neuma Logo" 
               className="w-8 h-8 object-contain"
             />
-            <span className="text-2xl font-bold text-[#6f42c1]">neuma</span>
           </div>
           <div className="flex items-center gap-4">
-            <span className="text-gray-700">Olá, {user?.full_name}</span>
+          <span className="text-white">Olá, {user?.full_name}</span>
             <button
               onClick={signOut}
               className="p-2 text-gray-600 hover:text-[#6f42c1] transition-colors"
@@ -331,16 +330,15 @@ export default function StudentHome({ onStartTest, hasCompletedTest, varkResult 
               <div className="bg-[#f0ebff] rounded-2xl p-8 mb-8 text-left">
                 <h2 className="text-2xl font-bold text-gray-900 mb-4">O que é o VARK?</h2>
                 <p className="text-gray-700 mb-4">
-                  O VARK é um questionário que identifica seu estilo de aprendizagem preferido entre quatro tipos:
-                </p>
+O VARK é uma abordagem que identifica quatro estilos de aprendizagem: <strong>Visual, Auditivo, Leitura/Escrita e Cinestésico</strong> <br /> para entender como cada pessoa prefere receber informações. Conhecer esses estilos permite adaptar o ensino às necessidades individuais dos alunos, tornando o aprendizado mais eficaz.                </p>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="flex items-start gap-2">
-                    <Check className="w-5 h-5 text-[#6f42c1] flex-shrink-0 mt-1" />
+                    <Check className="w-5 h-5 text-[#6f42c1] flex-shrink-0 mt-" />
                     <div>
                       <strong>Visual:</strong> Aprende com imagens
                     </div>
                   </div>
-                  <div className="flex items-start gap-2">
+                  <div className="flex items-start gap-">
                     <Check className="w-5 h-5 text-[#6f42c1] flex-shrink-0 mt-1" />
                     <div>
                       <strong>Auditivo:</strong> Aprende ouvindo
@@ -363,7 +361,7 @@ export default function StudentHome({ onStartTest, hasCompletedTest, varkResult 
 
               <button
                 onClick={onStartTest}
-                className="px-12 py-4 bg-[#6f42c1] hover:bg-[#5a35a0] text-white text-lg font-semibold rounded-xl transition-colors"
+                className="px-12 py-4 bg-[#150B53] hover:bg-[#350B53] text-white text-lg font-semibold rounded-xl transition-colors"
               >
                 Começar Teste
               </button>
@@ -598,3 +596,4 @@ export default function StudentHome({ onStartTest, hasCompletedTest, varkResult 
     </div>
   );
 }
+
