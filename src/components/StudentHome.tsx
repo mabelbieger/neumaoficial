@@ -388,7 +388,7 @@ export default function StudentHome({ onStartTest, hasCompletedTest, varkResult 
             />
           </div>
           <div className="flex items-center gap-4">
-            <span className="text-white text-sm xs:text-base">Olá, {user?.full_name}</span>
+            <span className="text-white text-sm md:text-base">Olá, {user?.full_name}</span>
             <button
               onClick={signOut}
               className="p-2 text-white hover:text-[#6f42c1] transition-colors"
@@ -399,76 +399,251 @@ export default function StudentHome({ onStartTest, hasCompletedTest, varkResult 
         </div>
       </nav>
 
-      <div className="max-w-7xl mx-auto px-4 py-6 xs:py-8">
+      <div className="max-w-7xl mx-auto px-4 py-6 md:py-8">
         {!hasCompletedTest && !hasTakenTest ? (
-          <div className="max-w-3xl mx-auto">
-            <div className="bg-white rounded-2xl xs:rounded-3xl shadow-xl p-6 xs:p-8 sm:p-12 text-center">
-              <img 
-                src={logo} 
-                alt="Neuma Logo" 
-                className="w-16 xs:w-20 sm:w-24 h-16 xs:h-20 sm:h-24 mx-auto mb-4 xs:mb-6 object-contain"
-              />
-              <h1 className="text-2xl xs:text-3xl sm:text-4xl font-bold text-gray-900 mb-3 xs:mb-4">
-                Bem-vindo ao Neuma!
-              </h1>
-              <p className="text-lg xs:text-xl text-gray-600 mb-6 xs:mb-8">
-                Descubra seu estilo de aprendizagem com o Teste VARK
-              </p>
-
-              <div className="bg-[#f0ebff] rounded-xl xs:rounded-2xl p-4 xs:p-6 sm:p-8 mb-6 xs:mb-8 text-left">
-                <h2 className="text-xl xs:text-2xl font-bold text-gray-900 mb-3 xs:mb-4">O que é o VARK?</h2>
-                <p className="text-gray-700 mb-4 text-sm xs:text-base">
-                  O VARK é uma abordagem que identifica quatro estilos de aprendizagem: <strong>Visual, Auditivo, Leitura/Escrita e Cinestésico</strong> para entender como cada pessoa prefere receber informações.
+          <div className="max-w-6xl mx-auto">
+            <div className="bg-white rounded-2xl md:rounded-3xl shadow-xl p-6 md:p-8">
+              {/* Cabeçalho com Logo e Título */}
+              <div className="text-center mb-8">
+                <img 
+                  src={logo} 
+                  alt="Neuma Logo" 
+                  className="w-16 md:w-20 h-16 md:h-20 mx-auto mb-4 object-contain"
+                />
+                <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3">
+                  Bem-vindo ao Neuma
+                </h1>
+                <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+                  Descubra seu estilo de aprendizagem com o Teste VARK
                 </p>
-                <div className="grid grid-cols-1 xs:grid-cols-2 gap-3 xs:gap-4">
-                  <div className="flex items-start gap-2">
-                    <Check className="w-4 xs:w-5 h-4 xs:h-5 text-[#6f42c1] flex-shrink-0 mt-0.5" />
-                    <div className="text-sm xs:text-base">
-                      <strong>Visual:</strong> Aprende com imagens
+              </div>
+
+              {/* Seção O que é VARK */}
+              <div className="bg-gray-50 rounded-xl p-6 md:p-8 mb-8">
+                <div className="text-center mb-6">
+                  <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-3">O que é o Modelo VARK?</h2>
+                  <p className="text-gray-700 max-w-4xl mx-auto">
+                    O VARK é um modelo que categoriza as preferências individuais de aprendizagem 
+                    em quatro sistemas sensoriais principais, permitindo uma abordagem personalizada para o ensino.
+                  </p>
+                </div>
+                
+                <div className="grid grid-cols-1 lg:grid-rows-2 lg:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6">
+                  <div className="bg-white rounded-lg p-4 border border-gray-200">
+                    <div className="flex items-center gap-3 mb-3">
+                      <Brain className="w-5 h-5 text-[#6f42c1]" />
+                      <h3 className="font-semibold text-gray-800">Estilos de Aprendizagem</h3>
+                    </div>
+                    <p className="text-gray-700 text-sm">
+                      Os indivíduos aprendem melhor quando o conteúdo é apresentado de acordo com seu estilo preferido.
+                    </p>
+                  </div>
+
+                  <div className="bg-white rounded-lg p-4 border border-gray-200">
+                    <div className="flex items-center gap-3 mb-3">
+                      <Target className="w-5 h-5 text-[#6f42c1]" />
+                      <h3 className="font-semibold text-gray-800">Adaptação</h3>
+                    </div>
+                    <p className="text-gray-700 text-sm">
+                      Adequar estratégias de ensino para tornar o aprendizado mais eficaz e significativo.
+                    </p>
+                  </div>
+
+                  <div className="bg-white rounded-lg p-4 border border-gray-200">
+                    <div className="flex items-center gap-3 mb-3">
+                      <Lightbulb className="w-5 h-5 text-[#6f42c1]" />
+                      <h3 className="font-semibold text-gray-800">Dificuldades</h3>
+                    </div>
+                    <p className="text-gray-700 text-sm">
+                      Identifica desalinhamentos entre método de ensino e estilo do aluno.
+                    </p>
+                  </div>
+
+                  <div className="bg-white rounded-lg p-4 border border-gray-200">
+                    <div className="flex items-center gap-3 mb-3">
+                      <Users className="w-5 h-5 text-[#6f42c1]" />
+                      <h3 className="font-semibold text-gray-800">Comunicação</h3>
+                    </div>
+                    <p className="text-gray-700 text-sm">
+                      Torna a comunicação mais clara e compreensível para o aluno.
+                    </p>
+                  </div>
+
+                  <div className="bg-white rounded-lg p-4 border border-gray-200">
+                    <div className="flex items-center gap-3 mb-3">
+                      <BookOpen className="w-5 h-5 text-[#6f42c1]" />
+                      <h3 className="font-semibold text-gray-800">Aplicações</h3>
+                    </div>
+                    <p className="text-gray-700 text-sm">
+                      Utilizado em educação, treinamento corporativo e desenvolvimento pessoal.
+                    </p>
+                  </div>
+
+                  <div className="bg-white rounded-lg p-4 border border-gray-200">
+                    <div className="flex items-center gap-3 mb-3">
+                      <Check className="w-5 h-5 text-[#6f42c1]" />
+                      <h3 className="font-semibold text-gray-800">Metodologia</h3>
+                    </div>
+                    <p className="text-gray-700 text-sm">
+                      Baseado em pesquisas sobre como o cérebro processa informações.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Seção Sistemas Sensoriais */}
+              <div className="mb-8">
+                <div className="text-center mb-6">
+                  <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-3">
+                    Sistemas Sensoriais do VARK
+                  </h2>
+                  <p className="text-gray-700 max-w-4xl mx-auto">
+                    Quatro sistemas sensoriais que influenciam como cada pessoa aprende
+                  </p>
+                </div>
+                
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+                  {/* Visual */}
+                  <div className="bg-white rounded-xl p-5 border border-gray-200">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="bg-blue-100 p-2 rounded-lg">
+                        <Brain className="w-6 h-6 text-blue-600" />
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-semibold text-gray-900">Visual</h3>
+                        <p className="text-gray-600 text-sm">Aprende através de imagens</p>
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <div className="flex items-start gap-2">
+                        <Check className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
+                        <span className="text-gray-700 text-sm">Prefere imagens, gráficos, diagramas e cores</span>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <Check className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
+                        <span className="text-gray-700 text-sm">Lembra facilmente de esquemas e mapas mentais</span>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <Check className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
+                        <span className="text-gray-700 text-sm">Gosta de materiais com organização visual clara</span>
+                      </div>
                     </div>
                   </div>
-                  <div className="flex items-start gap-2">
-                    <Check className="w-4 xs:w-5 h-4 xs:h-5 text-[#6f42c1] flex-shrink-0 mt-0.5" />
-                    <div className="text-sm xs:text-base">
-                      <strong>Auditivo:</strong> Aprende ouvindo
+
+                  {/* Auditivo */}
+                  <div className="bg-white rounded-xl p-5 border border-gray-200">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="bg-green-100 p-2 rounded-lg">
+                        <Brain className="w-6 h-6 text-green-600" />
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-semibold text-gray-900">Auditivo</h3>
+                        <p className="text-gray-600 text-sm">Aprende ouvindo</p>
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <div className="flex items-start gap-2">
+                        <Check className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
+                        <span className="text-gray-700 text-sm">Prefere ouvir explicações e conversas</span>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <Check className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
+                        <span className="text-gray-700 text-sm">Lembra de detalhes de sons e palavras</span>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <Check className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
+                        <span className="text-gray-700 text-sm">Gosta de músicas e gravações relacionadas ao conteúdo</span>
+                      </div>
                     </div>
                   </div>
-                  <div className="flex items-start gap-2">
-                    <Check className="w-4 xs:w-5 h-4 xs:h-5 text-[#6f42c1] flex-shrink-0 mt-0.5" />
-                    <div className="text-sm xs:text-base">
-                      <strong>Leitura/Escrita:</strong> Aprende lendo
+
+                  {/* Leitura/Escrita */}
+                  <div className="bg-white rounded-xl p-5 border border-gray-200">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="bg-purple-100 p-2 rounded-lg">
+                        <Brain className="w-6 h-6 text-purple-600" />
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-semibold text-gray-900">Leitura/Escrita</h3>
+                        <p className="text-gray-600 text-sm">Aprende lendo e escrevendo</p>
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <div className="flex items-start gap-2">
+                        <Check className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
+                        <span className="text-gray-700 text-sm">Prefere textos e materiais escritos</span>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <Check className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
+                        <span className="text-gray-700 text-sm">Facilidade em ler, escrever e reescrever</span>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <Check className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
+                        <span className="text-gray-700 text-sm">Organiza o aprendizado com resumos e esquemas</span>
+                      </div>
                     </div>
                   </div>
-                  <div className="flex items-start gap-2">
-                    <Check className="w-4 xs:w-5 h-4 xs:h-5 text-[#6f42c1] flex-shrink-0 mt-0.5" />
-                    <div className="text-sm xs:text-base">
-                      <strong>Cinestésico:</strong> Aprende fazendo
+
+                  {/* Cinestésico */}
+                  <div className="bg-white rounded-xl p-5 border border-gray-200">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="bg-orange-100 p-2 rounded-lg">
+                        <Brain className="w-6 h-6 text-orange-600" />
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-semibold text-gray-900">Cinestésico</h3>
+                        <p className="text-gray-600 text-sm">Aprende fazendo</p>
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <div className="flex items-start gap-2">
+                        <Check className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
+                        <span className="text-gray-700 text-sm">Aprende melhor por meio da prática</span>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <Check className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
+                        <span className="text-gray-700 text-sm">Lembra do que fez ou sentiu fisicamente</span>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <Check className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
+                        <span className="text-gray-700 text-sm">Prefere atividades práticas e experimentos</span>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
 
-              <button
-                onClick={onStartTest}
-                className="px-8 xs:px-12 py-3 xs:py-4 bg-[#150B53] hover:bg-[#350B53] text-white text-base xs:text-lg font-semibold rounded-xl transition-colors"
-              >
-                Começar Teste
-              </button>
+              {/* Botão Começar Teste */}
+              <div className="text-center bg-gray-50 rounded-xl p-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-3">
+                  Pronto para Descobrir Seu Estilo?
+                </h3>
+                <p className="text-gray-700 mb-4 max-w-2xl mx-auto">
+                  Faça o teste VARK agora e descubra como você aprende melhor.
+                </p>
+                <button
+                  onClick={onStartTest}
+                  className="px-8 py-3 bg-[#150B53] hover:bg-[#350B53] text-white font-semibold rounded-lg transition-colors"
+                >
+                  Começar Teste VARK
+                </button>
+              </div>
             </div>
           </div>
         ) : (
-          <div className="space-y-6 xs:space-y-8">
+          // ... resto do código para quando o teste já foi completado (mantido igual)
+          <div className="space-y-6 md:space-y-8">
             {/* Seção Fixa com Informações do Sistema Sensorial */}
             {styleInfo && (
-              <div className={`bg-gradient-to-r ${styleInfo.color} rounded-2xl xs:rounded-3xl shadow-xl p-4 xs:p-6 text-white`}>
+              <div className={`bg-gradient-to-r ${styleInfo.color} rounded-2xl md:rounded-3xl shadow-xl p-4 md:p-6 text-white`}>
                 <div className="flex flex-col lg:flex-row gap-6">
                   {/* Informações Principais */}
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-4">
                       <div className="text-3xl">{styleInfo.icon}</div>
                       <div>
-                        <h2 className="text-xl xs:text-2xl font-bold">Seu Sistema Sensorial: {styleInfo.name}</h2>
-                        <p className="text-white/90 text-sm xs:text-base mt-1">{styleInfo.description}</p>
+                        <h2 className="text-xl md:text-2xl font-bold">Seu Sistema Sensorial: {styleInfo.name}</h2>
+                        <p className="text-white/90 text-sm md:text-base mt-1">{styleInfo.description}</p>
                       </div>
                     </div>
 
@@ -482,7 +657,7 @@ export default function StudentHome({ onStartTest, hasCompletedTest, varkResult 
                         {styleInfo.characteristics.map((char, index) => (
                           <div key={index} className="flex items-start gap-2">
                             <Target className="w-3 h-3 mt-0.5 flex-shrink-0" />
-                            <span className="text-xs xs:text-sm">{char}</span>
+                            <span className="text-xs md:text-sm">{char}</span>
                           </div>
                         ))}
                       </div>
@@ -496,7 +671,7 @@ export default function StudentHome({ onStartTest, hasCompletedTest, varkResult 
                         <Lightbulb className="w-4 h-4" />
                         Estratégias para Matemática:
                       </h3>
-                      <ul className="space-y-1 text-xs xs:text-sm">
+                      <ul className="space-y-1 text-xs md:text-sm">
                         {styleInfo.mathStrategies.map((strategy, index) => (
                           <li key={index} className="flex items-start gap-2">
                             <div className="w-1 h-1 bg-white rounded-full mt-1.5 flex-shrink-0"></div>
@@ -511,7 +686,7 @@ export default function StudentHome({ onStartTest, hasCompletedTest, varkResult 
                         <BookOpen className="w-4 h-4" />
                         Métodos de Estudo:
                       </h3>
-                      <ul className="space-y-1 text-xs xs:text-sm">
+                      <ul className="space-y-1 text-xs md:text-sm">
                         {styleInfo.studyMethods.map((method, index) => (
                           <li key={index} className="flex items-start gap-2">
                             <div className="w-1 h-1 bg-white rounded-full mt-1.5 flex-shrink-0"></div>
@@ -528,7 +703,7 @@ export default function StudentHome({ onStartTest, hasCompletedTest, varkResult 
                   <button
                     onClick={onStartTest}
                     disabled={hasTakenTest}
-                    className="px-4 py-2 bg-white/20 hover:bg-white/30 text-white text-xs xs:text-sm font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                    className="px-4 py-2 bg-white/20 hover:bg-white/30 text-white text-xs md:text-sm font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                   >
                     {hasTakenTest ? 'Teste Concluído' : 'Refazer Teste'}
                   </button>
@@ -536,26 +711,26 @@ export default function StudentHome({ onStartTest, hasCompletedTest, varkResult 
               </div>
             )}
 
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 xs:gap-8">
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 md:gap-8">
               {/* Lista de Turmas - Coluna Esquerda */}
               <div className="lg:col-span-1">
-                <div className="bg-white rounded-2xl shadow-lg p-4 xs:p-6 sticky top-4">
+                <div className="bg-white rounded-2xl shadow-lg p-4 md:p-6 sticky top-4">
                   <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-base xs:text-lg font-bold text-gray-900">Minhas Turmas</h3>
+                    <h3 className="text-base md:text-lg font-bold text-gray-900">Minhas Turmas</h3>
                     <button
                       onClick={() => setShowJoinModal(true)}
-                      className="flex items-center gap-2 px-3 py-2 bg-[#6f42c1] hover:bg-[#5a35a0] text-white text-xs xs:text-sm font-medium rounded-lg transition-colors"
+                      className="flex items-center gap-2 px-3 py-2 bg-[#6f42c1] hover:bg-[#5a35a0] text-white text-xs md:text-sm font-medium rounded-lg transition-colors"
                     >
-                      <Users className="w-3 xs:w-4 h-3 xs:h-4" />
-                      Entrar
+                      <Users className="w-3 md:w-4 h-3 md:h-4" />
+                      <span className="hidden sm:inline">Entrar</span>
                     </button>
                   </div>
 
                   {classrooms.length === 0 ? (
-                    <div className="text-center py-6 xs:py-8 text-gray-500">
-                      <BookOpen className="w-8 xs:w-12 h-8 xs:h-12 mx-auto mb-2 xs:mb-3 text-gray-400" />
-                      <p className="text-sm xs:text-base">Nenhuma turma ainda</p>
-                      <p className="text-xs xs:text-sm mt-1">Entre em uma turma com o código do professor</p>
+                    <div className="text-center py-6 md:py-8 text-gray-500">
+                      <BookOpen className="w-8 md:w-12 h-8 md:h-12 mx-auto mb-2 md:mb-3 text-gray-400" />
+                      <p className="text-sm md:text-base">Nenhuma turma ainda</p>
+                      <p className="text-xs md:text-sm mt-1">Entre em uma turma com o código do professor</p>
                     </div>
                   ) : (
                     <div className="space-y-2 max-h-96 overflow-y-auto">
@@ -569,7 +744,7 @@ export default function StudentHome({ onStartTest, hasCompletedTest, varkResult 
                               : 'bg-gray-50 hover:bg-gray-100 text-gray-900'
                           }`}
                         >
-                          <div className="font-medium text-sm xs:text-base">{classroom.name}</div>
+                          <div className="font-medium text-sm md:text-base">{classroom.name}</div>
                           <div className={`text-xs font-mono ${
                             selectedClassroom === classroom.id ? 'text-white/80' : 'text-gray-500'
                           }`}>
@@ -585,8 +760,8 @@ export default function StudentHome({ onStartTest, hasCompletedTest, varkResult 
               {/* Atividades - Coluna Direita */}
               <div className="lg:col-span-3">
                 {selectedClassroom ? (
-                  <div className="bg-white rounded-2xl xs:rounded-3xl shadow-xl p-4 xs:p-6">
-                    <div className="flex flex-col xs:flex-row xs:items-center xs:justify-between gap-3 xs:gap-4 mb-6">
+                  <div className="bg-white rounded-2xl md:rounded-3xl shadow-xl p-4 md:p-6">
+                    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 md:gap-4 mb-6">
                       <div className="flex items-center gap-3">
                         {selectedActivity && (
                           <button
@@ -597,11 +772,11 @@ export default function StudentHome({ onStartTest, hasCompletedTest, varkResult 
                           </button>
                         )}
                         <div>
-                          <h2 className="text-xl xs:text-2xl font-bold text-gray-900">
+                          <h2 className="text-xl md:text-2xl font-bold text-gray-900">
                             {selectedActivity ? selectedActivity.title : selectedClassroomData?.name}
                           </h2>
                           {!selectedActivity && (
-                            <p className="text-gray-600 text-sm xs:text-base">
+                            <p className="text-gray-600 text-sm md:text-base">
                               Código: <span className="font-mono font-bold">{selectedClassroomData?.code}</span>
                             </p>
                           )}
@@ -609,7 +784,7 @@ export default function StudentHome({ onStartTest, hasCompletedTest, varkResult 
                       </div>
                       
                       {!selectedActivity && (
-                        <div className="relative w-full xs:w-64">
+                        <div className="relative w-full md:w-64">
                           <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                           <input
                             type="text"
@@ -641,7 +816,7 @@ export default function StudentHome({ onStartTest, hasCompletedTest, varkResult 
                           {/* Arquivo anexado */}
                           {selectedActivity.file_url && (
                             <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
-                              <div className="flex items-center justify-between">
+                              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                                 <div className="flex items-center gap-3">
                                   <FileText className="w-5 h-5 text-blue-600" />
                                   <div>
@@ -653,7 +828,7 @@ export default function StudentHome({ onStartTest, hasCompletedTest, varkResult 
                                 </div>
                                 <button
                                   onClick={() => downloadFile(selectedActivity)}
-                                  className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded transition-colors"
+                                  className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded transition-colors w-full sm:w-auto justify-center"
                                 >
                                   <Download className="w-4 h-4" />
                                   Baixar
@@ -666,19 +841,19 @@ export default function StudentHome({ onStartTest, hasCompletedTest, varkResult 
                     ) : (
                       /* Grid de Atividades */
                       <div>
-                        <h3 className="text-lg xs:text-xl font-bold text-gray-900 mb-4">Atividades da Turma</h3>
+                        <h3 className="text-lg md:text-xl font-bold text-gray-900 mb-4">Atividades da Turma</h3>
                         {filteredActivities.length === 0 ? (
-                          <div className="text-center py-8 xs:py-12 text-gray-500">
-                            <FileText className="w-12 xs:w-16 h-12 xs:h-16 mx-auto mb-3 xs:mb-4 text-gray-400" />
-                            <p className="text-base xs:text-lg mb-1 xs:mb-2">
+                          <div className="text-center py-8 md:py-12 text-gray-500">
+                            <FileText className="w-12 md:w-16 h-12 md:h-16 mx-auto mb-3 md:mb-4 text-gray-400" />
+                            <p className="text-base md:text-lg mb-1 md:mb-2">
                               {searchTerm ? 'Nenhuma atividade encontrada' : 'Nenhuma atividade disponível'}
                             </p>
-                            <p className="text-sm xs:text-base">
+                            <p className="text-sm md:text-base">
                               {searchTerm ? 'Tente ajustar os termos da pesquisa' : 'O professor ainda não postou atividades para esta turma'}
                             </p>
                           </div>
                         ) : (
-                          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
                             {filteredActivities.map((activity) => (
                               <button
                                 key={activity.id}
@@ -715,10 +890,10 @@ export default function StudentHome({ onStartTest, hasCompletedTest, varkResult 
                     )}
                   </div>
                 ) : (
-                  <div className="bg-white rounded-2xl xs:rounded-3xl shadow-xl p-6 xs:p-8 sm:p-12 text-center">
-                    <BookOpen className="w-12 xs:w-16 h-12 xs:h-16 mx-auto mb-4 xs:mb-6 text-gray-400" />
-                    <h2 className="text-xl xs:text-2xl font-bold text-gray-900 mb-2">Selecione uma turma</h2>
-                    <p className="text-gray-600 text-sm xs:text-base">Escolha uma turma para ver as atividades</p>
+                  <div className="bg-white rounded-2xl md:rounded-3xl shadow-xl p-6 md:p-8 lg:p-12 text-center">
+                    <BookOpen className="w-12 md:w-16 h-12 md:h-16 mx-auto mb-4 md:mb-6 text-gray-400" />
+                    <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-2">Selecione uma turma</h2>
+                    <p className="text-gray-600 text-sm md:text-base">Escolha uma turma para ver as atividades</p>
                   </div>
                 )}
               </div>
@@ -730,9 +905,9 @@ export default function StudentHome({ onStartTest, hasCompletedTest, varkResult 
       {/* Modal Entrar na Turma */}
       {showJoinModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-2xl xs:rounded-3xl shadow-2xl p-6 xs:p-8 max-w-md w-full">
+          <div className="bg-white rounded-2xl md:rounded-3xl shadow-2xl p-6 md:p-8 max-w-md w-full">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl xs:text-2xl font-bold text-gray-900">Entrar em uma Turma</h2>
+              <h2 className="text-xl md:text-2xl font-bold text-gray-900">Entrar em uma Turma</h2>
               <button
                 onClick={() => {
                   setShowJoinModal(false);
@@ -742,7 +917,7 @@ export default function StudentHome({ onStartTest, hasCompletedTest, varkResult 
                 className="p-2 text-gray-400 hover:text-gray-600"
                 disabled={loading}
               >
-                <X className="w-5 xs:w-6 h-5 xs:h-6" />
+                <X className="w-5 md:w-6 h-5 md:h-6" />
               </button>
             </div>
 
@@ -767,7 +942,7 @@ export default function StudentHome({ onStartTest, hasCompletedTest, varkResult 
                   onChange={(e) => setClassroomCode(e.target.value.toUpperCase())}
                   placeholder="Digite o código de 6 caracteres"
                   maxLength={6}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6f42c1] focus:border-transparent text-center text-xl xs:text-2xl font-mono tracking-wider"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6f42c1] focus:border-transparent text-center text-xl md:text-2xl font-mono tracking-wider"
                   required
                   disabled={loading}
                 />
@@ -784,14 +959,14 @@ export default function StudentHome({ onStartTest, hasCompletedTest, varkResult 
                     setError('');
                     setClassroomCode('');
                   }}
-                  className="flex-1 py-3 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-colors text-sm xs:text-base"
+                  className="flex-1 py-3 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-colors text-sm md:text-base"
                   disabled={loading}
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 py-3 bg-[#6f42c1] hover:bg-[#5a35a0] text-white font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm xs:text-base"
+                  className="flex-1 py-3 bg-[#6f42c1] hover:bg-[#5a35a0] text-white font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm md:text-base"
                   disabled={loading}
                 >
                   {loading ? 'Entrando...' : 'Entrar na Turma'}
