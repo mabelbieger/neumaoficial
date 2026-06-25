@@ -36,15 +36,12 @@ Os professores podem criar turmas, gerenciar alunos e desenvolver conteúdos esp
 
 ## Tecnologias Utilizadas
 
-* React 18
+* React 
 * TypeScript
-* Vite
 * CSS
 * Supabase
-
-  * Authentication
-  * Database
 * Lucide React
+* Vercel
 
 ## Objetivo
 
